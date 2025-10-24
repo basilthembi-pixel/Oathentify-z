@@ -68,11 +68,19 @@ export default function LoginPage() {
       router.push('/');
     } catch (error: any) {
       console.error('Error during email login:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: error.message,
-      });
+      if (error.code === 'auth/configuration-not-found') {
+         toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: "Email/Password sign-in is not enabled for this project. Please enable it in the Firebase console.",
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: error.message,
+        });
+      }
     } finally {
       setIsLoading(false);
     }

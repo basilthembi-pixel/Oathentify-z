@@ -78,11 +78,19 @@ export default function SignupPage() {
       router.push('/');
     } catch (error: any) {
       console.error('Error during email sign-up:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Sign-up Failed',
-        description: error.message,
-      });
+      if (error.code === 'auth/configuration-not-found') {
+         toast({
+          variant: 'destructive',
+          title: 'Sign-up Failed',
+          description: "Email/Password sign-in is not enabled for this project. Please enable it in the Firebase console.",
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Sign-up Failed',
+          description: error.message,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
