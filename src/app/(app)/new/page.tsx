@@ -55,9 +55,7 @@ type FormValues = z.infer<typeof step1Schema> & z.infer<typeof step2Schema>;
 function Step1() {
   const form = useFormContext<FormValues>();
   const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
-
-  const [aiState, formAction] = useActionState(suggestTermsAction, {
+  const [aiState, formAction, isPending] = useActionState(suggestTermsAction, {
     suggestedTerms: '',
     error: '',
   });
@@ -65,23 +63,21 @@ function Step1() {
   const handleSuggestTerms = () => {
     const formData = new FormData();
     formData.append('agreementType', form.getValues('agreementType'));
-    startTransition(() => {
-      formAction(formData);
-    });
+    formAction(formData);
   };
 
   useEffect(() => {
     if (aiState.suggestedTerms) {
       form.setValue('description', aiState.suggestedTerms, { shouldValidate: true });
       toast({
-        title: "AI Suggestion Added",
-        description: "The AI-suggested terms have been added to the description.",
+        title: 'AI Suggestion Added',
+        description: 'The AI-suggested terms have been added to the description.',
       });
     }
     if (aiState.error) {
       toast({
-        variant: "destructive",
-        title: "AI Suggestion Failed",
+        variant: 'destructive',
+        title: 'AI Suggestion Failed',
         description: aiState.error,
       });
     }
