@@ -1,10 +1,8 @@
-// This file now lives at /dashboard/new
 'use client';
-import { useState, useTransition, useEffect, useRef } from 'react';
+import { useState, useTransition, useEffect, useRef, useActionState } from 'react';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFormState } from 'react-dom';
 import {
   Form,
   FormControl,
@@ -59,7 +57,7 @@ function Step1() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
-  const [aiState, formAction] = useFormState(suggestTermsAction, {
+  const [aiState, formAction] = useActionState(suggestTermsAction, {
     suggestedTerms: '',
     error: '',
   });
