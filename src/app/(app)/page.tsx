@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -38,8 +38,7 @@ const statusStyles: { [key: string]: string } = {
   draft: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-700',
 };
 
-const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
-  const timeAgo = (dateStr: string) => {
+const timeAgo = (dateStr: string) => {
     const date = new Date(dateStr);
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
     let interval = seconds / 31536000;
@@ -53,7 +52,15 @@ const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
     interval = seconds / 60;
     if (interval > 1) return Math.floor(interval) + ' minutes ago';
     return Math.floor(seconds) + ' seconds ago';
-  };
+};
+
+const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
+  const [updatedAt, setUpdatedAt] = useState('');
+
+  useEffect(() => {
+    setUpdatedAt(timeAgo(agreement.updatedAt));
+  }, [agreement.updatedAt]);
+
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -74,7 +81,11 @@ const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
-            <span>Last updated: {timeAgo(agreement.updatedAt)}</span>
+            {updatedAt ? (
+                <span>Last updated: {updatedAt}</span>
+            ) : (
+                <span>Loading...</span>
+            )}
           </div>
           <Button className="w-full mt-2" variant="outline">View Agreement</Button>
         </div>
