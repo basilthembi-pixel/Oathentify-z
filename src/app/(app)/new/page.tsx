@@ -55,15 +55,18 @@ type FormValues = z.infer<typeof step1Schema> & z.infer<typeof step2Schema>;
 function Step1() {
   const form = useFormContext<FormValues>();
   const { toast } = useToast();
-  const [aiState, formAction, isPending] = useActionState(suggestTermsAction, {
+  const [isPending, startTransition] = useTransition();
+  const [aiState, formAction] = useActionState(suggestTermsAction, {
     suggestedTerms: '',
     error: '',
   });
 
   const handleSuggestTerms = () => {
-    const formData = new FormData();
-    formData.append('agreementType', form.getValues('agreementType'));
-    formAction(formData);
+    startTransition(() => {
+        const formData = new FormData();
+        formData.append('agreementType', form.getValues('agreementType'));
+        formAction(formData);
+    });
   };
 
   useEffect(() => {
@@ -279,7 +282,7 @@ export default function NewAgreementPage() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
   
