@@ -1,6 +1,3 @@
-// This file is now redundant as the root page.tsx handles redirection.
-// You can either delete it or repurpose it for your dashboard.
-// For now, let's keep it as the dashboard content.
 'use client';
 
 import { useState, useEffect } from 'react';

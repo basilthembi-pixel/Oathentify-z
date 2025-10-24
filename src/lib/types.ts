@@ -1,10 +1,3 @@
-export type User = {
-  uid: string;
-  email: string;
-  displayName: string;
-  photoURL: string;
-};
-
 export type Party = {
   uid: string;
   name: string;

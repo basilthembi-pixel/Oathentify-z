@@ -1,12 +1,5 @@
-import { Agreement, User } from './types';
+import { Agreement } from './types';
 import { PlaceHolderImages } from './placeholder-images';
-
-export const DUMMY_USER: User = {
-  uid: 'user-1',
-  displayName: 'Alex Doe',
-  email: 'alex.doe@example.com',
-  photoURL: PlaceHolderImages.find(p => p.id === 'user-avatar-1')?.imageUrl || '',
-};
 
 export const DUMMY_AGREEMENTS: Agreement[] = [
   {

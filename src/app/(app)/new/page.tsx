@@ -1,3 +1,4 @@
+// This file now lives at /dashboard/new
 'use client';
 import { useState, useTransition, useEffect, useRef } from 'react';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';

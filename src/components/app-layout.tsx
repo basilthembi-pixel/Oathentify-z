@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -38,8 +38,9 @@ import {
   User,
 } from 'lucide-react';
 import { Logo } from './logo';
-import { DUMMY_USER } from '@/lib/data';
 import { Separator } from './ui/separator';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 function Header({ pageTitle }: { pageTitle: string }) {
   const { toggleSidebar } = useSidebar();
@@ -59,14 +60,27 @@ function Header({ pageTitle }: { pageTitle: string }) {
 }
 
 function UserMenu() {
+  const auth = useAuth();
+  const { user } = useUser();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/login');
+    }
+  };
+
+  if (!user) return null;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={DUMMY_USER.photoURL} alt={DUMMY_USER.displayName} data-ai-hint="person portrait"/>
+            {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || ''} data-ai-hint="person portrait"/>}
             <AvatarFallback>
-              {DUMMY_USER.displayName.charAt(0)}
+              {user.displayName ? user.displayName.charAt(0) : user.email?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -74,9 +88,9 @@ function UserMenu() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{DUMMY_USER.displayName}</p>
+            <p className="text-sm font-medium leading-none">{user.displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {DUMMY_USER.email}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -90,7 +104,7 @@ function UserMenu() {
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
@@ -100,16 +114,18 @@ function UserMenu() {
 }
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/new', label: 'New Agreement', icon: PlusCircle },
   { href: '/templates', label: 'Templates', icon: FileText },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useUser();
 
-  // Determine page title from nav items
-  const pageTitle = navItems.find(item => item.href === pathname)?.label || 'Oathentify';
+  const pageTitle = navItems.find(item => pathname.startsWith(item.href))?.label || 'Oathentify';
+
+  if (!user) return null;
 
   return (
     <SidebarProvider>
@@ -123,7 +139,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href}>
                   <SidebarMenuButton
-                    isActive={pathname === item.href}
+                    isActive={pathname.startsWith(item.href)}
                     tooltip={item.label}
                   >
                     <item.icon />
@@ -138,14 +154,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <Separator className="my-2" />
           <div className="flex items-center gap-3 p-2">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={DUMMY_USER.photoURL} alt={DUMMY_USER.displayName} data-ai-hint="person portrait"/>
-              <AvatarFallback>
-                {DUMMY_USER.displayName.charAt(0)}
+               {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || ''} data-ai-hint="person portrait"/>}
+               <AvatarFallback>
+                {user.displayName ? user.displayName.charAt(0) : user.email?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="overflow-hidden">
-                <p className="font-semibold truncate">{DUMMY_USER.displayName}</p>
-                <p className="text-xs text-muted-foreground truncate">{DUMMY_USER.email}</p>
+                <p className="font-semibold truncate">{user.displayName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>
         </SidebarFooter>
