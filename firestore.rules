@@ -1,0 +1,242 @@
+/**
+ * @fileoverview Firestore Security Rules for Oathentify platform.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for data nested under
+ * /users/{userId} and a public-read, owner-write model for the top-level
+ * /agreements/{agreementId} collection and its subcollections. This provides a balance between private user data and potentially public agreements.
+ *
+ * Data Structure:
+ * - All user-specific data (profile, agreements, transactions) is nested under
+ *   /users/{userId}.
+ * - Agreements, disputes, audit logs, and shareable links are stored in top-level collections.
+ *   These are potentially shared resources with public read access, but
+ *   restricted write access to the agreement creator.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed.
+ * - Public read access is granted to the /agreements/{agreementId} collection and its subcollections,
+ *   but writes are restricted to the owner.
+ * - The default security posture is strict owner-only access unless explicitly
+ *   relaxed for public read.
+ *
+ * Denormalization for Authorization:
+ * - The `Agreement` entity must include a `createdBy` field referencing the
+ *   User who created the agreement. This allows for owner-only write rules without extra reads.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the current user is signed in.
+     * @return {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the current user is the owner of the resource.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @return {boolean} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the current user is the owner of the resource, and that the resource exists.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @return {boolean} True if the user is the owner and the resource exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for user profiles.
+     * @path /users/{userId}
+     * @allow (create) User 'user_abc' can create their profile.
+     * @allow (get) User 'user_abc' can read their profile.
+     * @allow (update) User 'user_abc' can update their profile.
+     * @allow (delete) User 'user_abc' can delete their profile.
+     * @deny (create) User 'user_xyz' cannot create a profile with ID 'user_abc'.
+     * @deny (get) User 'user_xyz' cannot read user 'user_abc' profile.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for agreements created by a specific user.
+     * @path /users/{userId}/agreements/{agreementId}
+     * @allow (create) User 'user_abc' can create an agreement under their profile.
+     * @allow (get) User 'user_abc' can read their agreement.
+     * @allow (update) User 'user_abc' can update their agreement.
+     * @allow (delete) User 'user_abc' can delete their agreement.
+     * @deny (create) User 'user_xyz' cannot create an agreement with ID 'agreement_123' under user 'user_abc'.
+     * @deny (get) User 'user_xyz' cannot read agreement 'agreement_123' of user 'user_abc'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/agreements/{agreementId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for parties involved in a specific agreement.
+     * @path /users/{userId}/agreements/{agreementId}/parties/{partyId}
+     * @allow (create) User 'user_abc' can create a party for their agreement.
+     * @allow (get) User 'user_abc' can read a party for their agreement.
+     * @allow (update) User 'user_abc' can update a party for their agreement.
+     * @allow (delete) User 'user_abc' can delete a party for their agreement.
+     * @deny (create) User 'user_xyz' cannot create a party under agreement 'agreement_123' of user 'user_abc'.
+     * @deny (get) User 'user_xyz' cannot read party 'party_456' under agreement 'agreement_123' of user 'user_abc'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/agreements/{agreementId}/parties/{partyId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for witnesses associated with a specific agreement.
+     * @path /users/{userId}/agreements/{agreementId}/witnesses/{witnessId}
+     * @allow (create) User 'user_abc' can create a witness for their agreement.
+     * @allow (get) User 'user_abc' can read a witness for their agreement.
+     * @allow (update) User 'user_abc' can update a witness for their agreement.
+     * @allow (delete) User 'user_abc' can delete a witness for their agreement.
+     * @deny (create) User 'user_xyz' cannot create a witness under agreement 'agreement_123' of user 'user_abc'.
+     * @deny (get) User 'user_xyz' cannot read witness 'witness_789' under agreement 'agreement_123' of user 'user_abc'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/agreements/{agreementId}/witnesses/{witnessId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for signatures on a specific agreement.
+     * @path /users/{userId}/agreements/{agreementId}/signatures/{signatureId}
+     * @allow (create) User 'user_abc' can create a signature for their agreement.
+     * @allow (get) User 'user_abc' can read a signature for their agreement.
+     * @allow (update) User 'user_abc' can update a signature for their agreement.
+     * @allow (delete) User 'user_abc' can delete a signature for their agreement.
+     * @deny (create) User 'user_xyz' cannot create a signature under agreement 'agreement_123' of user 'user_abc'.
+     * @deny (get) User 'user_xyz' cannot read signature 'signature_def' under agreement 'agreement_123' of user 'user_abc'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/agreements/{agreementId}/signatures/{signatureId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for transaction records for a specific user.
+     * @path /users/{userId}/transactions/{transactionId}
+     * @allow (create) User 'user_abc' can create a transaction under their profile.
+     * @allow (get) User 'user_abc' can read their transaction.
+     * @allow (update) User 'user_abc' can update their transaction.
+     * @allow (delete) User 'user_abc' can delete their transaction.
+     * @deny (create) User 'user_xyz' cannot create a transaction with ID 'transaction_ghi' under user 'user_abc'.
+     * @deny (get) User 'user_xyz' cannot read transaction 'transaction_ghi' of user 'user_abc'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/transactions/{transactionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for disputes related to an agreement.
+     * @path /agreements/{agreementId}/disputes/{disputeId}
+     * @allow (get) Anyone can read a dispute.
+     * @allow (list) Anyone can list disputes.
+     * @allow (create) Anyone can create a dispute. MUST be restricted later.
+     * @allow (update) Only the owner of the agreement can update the dispute. MUST be restricted later.
+     * @allow (delete) Only the owner of the agreement can delete the dispute. MUST be restricted later.
+     * @principle Public read, owner-only writes.  Requires `createdBy` field on Agreement.
+     */
+    match /agreements/{agreementId}/disputes/{disputeId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn(); // TODO: Restrict to parties involved in the agreement
+      allow update: if false; // TODO: Restrict to parties involved in the dispute and agreement
+      allow delete: if false; // TODO: Restrict to parties involved in the dispute and agreement
+    }
+
+    /**
+     * @description Rules for evidence submitted for a specific dispute.
+     * @path /agreements/{agreementId}/disputes/{disputeId}/evidence/{evidenceId}
+     * @allow (get) Anyone can read evidence.
+     * @allow (list) Anyone can list evidence.
+     * @allow (create) Anyone can create evidence. MUST be restricted later.
+     * @allow (update) Only the owner of the agreement can update the evidence. MUST be restricted later.
+     * @allow (delete) Only the owner of the agreement can delete the evidence. MUST be restricted later.
+     * @principle Public read, owner-only writes. Requires `createdBy` field on Agreement.
+     */
+    match /agreements/{agreementId}/disputes/{disputeId}/evidence/{evidenceId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn(); // TODO: Restrict to parties involved in the dispute
+      allow update: if false; // TODO: Restrict to parties involved in the dispute and agreement
+      allow delete: if false; // TODO: Restrict to parties involved in the dispute and agreement
+    }
+
+    /**
+     * @description Rules for audit logs for a specific agreement.
+     * @path /agreements/{agreementId}/audit_logs/{auditLogId}
+     * @allow (get) Anyone can read an audit log.
+     * @allow (list) Anyone can list audit logs.
+     * @allow (create) Anyone can create an audit log. MUST be restricted later.
+     * @allow (update) Only the owner of the agreement can update the audit log. MUST be restricted later.
+     * @allow (delete) Only the owner of the agreement can delete the audit log. MUST be restricted later.
+     * @principle Public read, owner-only writes. Requires `createdBy` field on Agreement.
+     */
+    match /agreements/{agreementId}/audit_logs/{auditLogId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn(); // TODO: Restrict to service accounts/admin
+      allow update: if false; // TODO: Should likely never be allowed
+      allow delete: if false; // TODO: Should likely never be allowed
+    }
+
+    /**
+     * @description Rules for shareable links for accessing a specific agreement.
+     * @path /agreements/{agreementId}/shareable_links/{shareableLinkId}
+     * @allow (get) Anyone can read a shareable link.
+     * @allow (list) Anyone can list shareable links.
+     * @allow (create) Anyone can create a shareable link. MUST be restricted later.
+     * @allow (update) Only the owner of the agreement can update the shareable link. MUST be restricted later.
+     * @allow (delete) Only the owner of the agreement can delete the shareable link. MUST be restricted later.
+     */
+    match /agreements/{agreementId}/shareable_links/{shareableLinkId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn(); // TODO: Restrict to agreement creator
+      allow update: if false; // TODO: Restrict to agreement creator
+      allow delete: if false; // TODO: Restrict to agreement creator
+    }
+  }
+}

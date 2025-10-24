@@ -1,0 +1,697 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Oathentify platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "User's phone number."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User's display name."
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL of the user's profile photo.",
+          "format": "uri"
+        },
+        "emailVerified": {
+          "type": "boolean",
+          "description": "Indicates if the user's email is verified."
+        },
+        "phoneVerified": {
+          "type": "boolean",
+          "description": "Indicates if the user's phone number is verified."
+        },
+        "subscriptionTier": {
+          "type": "string",
+          "description": "The user's current subscription tier (e.g., free, premium, enterprise)."
+        },
+        "subscriptionValidUntil": {
+          "type": "string",
+          "description": "Timestamp indicating when the user's subscription is valid until.",
+          "format": "date-time"
+        },
+        "agreementCount": {
+          "type": "number",
+          "description": "The number of agreements the user has created."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "displayName"
+      ]
+    },
+    "Agreement": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Agreement",
+      "type": "object",
+      "description": "Represents a digital agreement created on the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the agreement."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Reference to the User who created the agreement. (Relationship: User 1:N Agreement)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title or subject of the agreement."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description or terms of the agreement."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of agreement (e.g., loan, service, partnership)."
+        },
+        "monetaryValue": {
+          "type": "number",
+          "description": "Monetary value involved in the agreement (optional)."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the agreement (e.g., draft, pending, executed)."
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "Date and time when the agreement expires (optional).",
+          "format": "date-time"
+        },
+        "hash": {
+          "type": "string",
+          "description": "Hash of the agreement content for tamper-proof verification."
+        },
+        "blockchainTxId": {
+          "type": "string",
+          "description": "Transaction ID on the blockchain for immutable timestamping (premium feature, optional)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the agreement was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the agreement was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "createdBy",
+        "title",
+        "description",
+        "status"
+      ]
+    },
+    "Party": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Party",
+      "type": "object",
+      "description": "Represents a party involved in an agreement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the party within the agreement.  Not a global User ID."
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement this party is associated with. (Relationship: Agreement 1:N Party)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User that represents this party. Can be null if it's an external party. (Relationship: User 1:N Party)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the party."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the party.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the party."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the party in the agreement (e.g., creator, counter-party)."
+        }
+      },
+      "required": [
+        "id",
+        "agreementId",
+        "name",
+        "role"
+      ]
+    },
+    "Witness": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Witness",
+      "type": "object",
+      "description": "Represents a witness to an agreement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the witness."
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement this witness is associated with. (Relationship: Agreement 1:N Witness)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User that represents this witness, if applicable. (Relationship: User 1:N Witness)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the witness."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the witness.",
+          "format": "email"
+        }
+      },
+      "required": [
+        "id",
+        "agreementId",
+        "name"
+      ]
+    },
+    "Signature": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Signature",
+      "type": "object",
+      "description": "Represents a signature on an agreement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the signature."
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement this signature belongs to. (Relationship: Agreement 1:N Signature)"
+        },
+        "partyId": {
+          "type": "string",
+          "description": "Reference to the Party who signed the agreement. (Relationship: Party 1:N Signature)"
+        },
+        "method": {
+          "type": "string",
+          "description": "Method used for signing (e.g., text, voice, video, biometric)."
+        },
+        "signedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the agreement was signed.",
+          "format": "date-time"
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "IP address of the signer."
+        },
+        "deviceInfo": {
+          "type": "string",
+          "description": "Information about the signer's device."
+        },
+        "location": {
+          "type": "string",
+          "description": "Geographic location of the signer (optional)."
+        },
+        "mediaURL": {
+          "type": "string",
+          "description": "URL of the media file (voice or video) for voice/video signatures (optional).",
+          "format": "uri"
+        },
+        "hash": {
+          "type": "string",
+          "description": "Hash of the signature data for tamper-proof verification."
+        }
+      },
+      "required": [
+        "id",
+        "agreementId",
+        "partyId",
+        "method",
+        "signedAt"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a financial transaction related to the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who initiated the transaction. (Relationship: User 1:N Transaction)"
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement associated with the transaction (optional). (Relationship: Agreement 1:N Transaction)"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of transaction (e.g., subscription, per-agreement, premium-feature)."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency of the transaction."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the transaction (e.g., pending, completed, failed)."
+        },
+        "stripePaymentIntentId": {
+          "type": "string",
+          "description": "ID of the payment intent in Stripe."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the transaction was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "amount",
+        "currency",
+        "status"
+      ]
+    },
+    "Dispute": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Dispute",
+      "type": "object",
+      "description": "Represents a dispute related to an agreement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the dispute."
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement under dispute. (Relationship: Agreement 1:N Dispute)"
+        },
+        "raisedBy": {
+          "type": "string",
+          "description": "Reference to the User who raised the dispute. (Relationship: User 1:N Dispute)"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for the dispute."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the dispute (e.g., open, mediation, resolved)."
+        },
+        "resolution": {
+          "type": "string",
+          "description": "Resolution of the dispute."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the dispute was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "agreementId",
+        "raisedBy",
+        "reason",
+        "status"
+      ]
+    },
+    "Evidence": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Evidence",
+      "type": "object",
+      "description": "Represents evidence submitted for a dispute.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the evidence."
+        },
+        "disputeId": {
+          "type": "string",
+          "description": "Reference to the Dispute this evidence is for. (Relationship: Dispute 1:N Evidence)"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of evidence (e.g., document, photo, message)."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL of the evidence file.",
+          "format": "uri"
+        },
+        "uploadedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the evidence was uploaded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "disputeId",
+        "type",
+        "url"
+      ]
+    },
+    "AuditLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AuditLog",
+      "type": "object",
+      "description": "Represents an audit log entry for tracking actions performed on an agreement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the audit log entry."
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement this log is associated with. (Relationship: Agreement 1:N AuditLog)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who performed the action (optional, can be system). (Relationship: User 1:N AuditLog)"
+        },
+        "action": {
+          "type": "string",
+          "description": "Description of the action performed (e.g., created, viewed, signed, modified)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp indicating when the action was performed.",
+          "format": "date-time"
+        },
+        "metadata": {
+          "type": "string",
+          "description": "Additional metadata associated with the action (e.g., IP address, device info)."
+        }
+      },
+      "required": [
+        "id",
+        "agreementId",
+        "action",
+        "timestamp"
+      ]
+    },
+    "ShareableLink": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShareableLink",
+      "type": "object",
+      "description": "Represents a shareable link for accessing an agreement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the shareable link."
+        },
+        "agreementId": {
+          "type": "string",
+          "description": "Reference to the Agreement this link provides access to. (Relationship: Agreement 1:N ShareableLink)"
+        },
+        "link": {
+          "type": "string",
+          "description": "The generated shareable link URL.",
+          "format": "uri"
+        },
+        "expiry": {
+          "type": "string",
+          "description": "Timestamp indicating when the link expires.",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the link was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "agreementId",
+        "link",
+        "expiry"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.  Path-based ownership for private user data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/agreements/{agreementId}",
+        "definition": {
+          "entityName": "Agreement",
+          "schema": {
+            "$ref": "#/backend/entities/Agreement"
+          },
+          "description": "Stores agreements created by a specific user. Enforces ownership via path. Includes `createdBy` field linking to the User document.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who created the agreement."
+            },
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/agreements/{agreementId}/parties/{partyId}",
+        "definition": {
+          "entityName": "Party",
+          "schema": {
+            "$ref": "#/backend/entities/Party"
+          },
+          "description": "Stores information about parties involved in a specific agreement. Authorization is based on agreement ownership and party roles.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who created the agreement."
+            },
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement."
+            },
+            {
+              "name": "partyId",
+              "description": "The unique identifier of the party."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/agreements/{agreementId}/witnesses/{witnessId}",
+        "definition": {
+          "entityName": "Witness",
+          "schema": {
+            "$ref": "#/backend/entities/Witness"
+          },
+          "description": "Stores information about witnesses associated with a specific agreement.  Authorization is based on agreement ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who created the agreement."
+            },
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement."
+            },
+            {
+              "name": "witnessId",
+              "description": "The unique identifier of the witness."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/agreements/{agreementId}/signatures/{signatureId}",
+        "definition": {
+          "entityName": "Signature",
+          "schema": {
+            "$ref": "#/backend/entities/Signature"
+          },
+          "description": "Stores signature information for a specific agreement. Authorization based on agreement ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who created the agreement."
+            },
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement."
+            },
+            {
+              "name": "signatureId",
+              "description": "The unique identifier of the signature."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transaction records for a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user associated with the transaction."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier of the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agreements/{agreementId}/disputes/{disputeId}",
+        "definition": {
+          "entityName": "Dispute",
+          "schema": {
+            "$ref": "#/backend/entities/Dispute"
+          },
+          "description": "Stores dispute information for a specific agreement. Agreements are in separate collection, not user owned.",
+          "params": [
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement under dispute."
+            },
+            {
+              "name": "disputeId",
+              "description": "The unique identifier of the dispute."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agreements/{agreementId}/disputes/{disputeId}/evidence/{evidenceId}",
+        "definition": {
+          "entityName": "Evidence",
+          "schema": {
+            "$ref": "#/backend/entities/Evidence"
+          },
+          "description": "Stores evidence submitted for a specific dispute. Agreements are in separate collection, not user owned.",
+          "params": [
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement under dispute."
+            },
+            {
+              "name": "disputeId",
+              "description": "The unique identifier of the dispute."
+            },
+            {
+              "name": "evidenceId",
+              "description": "The unique identifier of the evidence."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agreements/{agreementId}/audit_logs/{auditLogId}",
+        "definition": {
+          "entityName": "AuditLog",
+          "schema": {
+            "$ref": "#/backend/entities/AuditLog"
+          },
+          "description": "Stores audit logs for a specific agreement. Agreements are in separate collection, not user owned.",
+          "params": [
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement."
+            },
+            {
+              "name": "auditLogId",
+              "description": "The unique identifier of the audit log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agreements/{agreementId}/shareable_links/{shareableLinkId}",
+        "definition": {
+          "entityName": "ShareableLink",
+          "schema": {
+            "$ref": "#/backend/entities/ShareableLink"
+          },
+          "description": "Stores shareable links for accessing a specific agreement. Agreements are in separate collection, not user owned.",
+          "params": [
+            {
+              "name": "agreementId",
+              "description": "The unique identifier of the agreement."
+            },
+            {
+              "name": "shareableLinkId",
+              "description": "The unique identifier of the shareable link."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to prioritize authorization independence, clarity, and scalability. It uses denormalization to avoid hierarchical authorization dependencies and structural segregation to maintain a homogeneous security posture within collections.\n\nAuthorization Independence is achieved by denormalizing user roles/access rights directly into the agreement documents (or related subcollections like parties). This eliminates the need for `get()` calls in security rules, enabling atomic operations and simplifying security logic.  Specifically, the `agreements` documents will contain the `createdBy` field, linking to the user, and other potential members, which could be denormalized in the future for collaborative agreements.  The parties subcollection explicitly stores user IDs and roles for agreement participation, this information could be denormalized onto the agreement object for improved authorization independence.\n\nQAPs (Rules Are Not Filters) are supported through structural segregation. User-specific data (agreements created by a user) is stored under the `/users/{userId}` path, allowing efficient and secure listing of user-owned resources.  If a 'public opinion mode' were implemented as described in the instructions, a separate `/public_agreements` collection could be used to store publicly visible agreements, ensuring that listing operations on user agreements remain secure and private.\n\nThe structure also supports invariants by utilizing path-based ownership (`/users/{userId}/agreements/{agreementId}`) to ensure the integrity of ownership, and explicitly defining timestamp fields (`createdAt`, `updatedAt`) in the entities to support integrity of time-related data."
+  }
+}
