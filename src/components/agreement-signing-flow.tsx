@@ -159,7 +159,10 @@ function Step1({ agreement }: { agreement: Agreement }) {
               <FormItem className="text-left">
                 <FormLabel>Confirm Your Email to Continue</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your email to continue..." {...field} />
+                  <Input
+                    placeholder="Enter your email to continue..."
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -418,12 +421,13 @@ function VoiceSignatureStep() {
   };
 
   useEffect(() => {
-    if (audioRef.current) {
+    const audioEl = audioRef.current;
+    if (audioEl) {
       const handleEnded = () => setIsPlaying(false);
-      audioRef.current.addEventListener('ended', handleEnded);
+      audioEl.addEventListener('ended', handleEnded);
       return () => {
-        if(audioRef.current) {
-            audioRef.current.removeEventListener('ended', handleEnded);
+        if(audioEl) {
+            audioEl.removeEventListener('ended', handleEnded);
         }
       };
     }
@@ -841,7 +845,7 @@ export function AgreementSigningFlow({
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep((step) => step + 1);
+      setCurrentStep((step) => step - 1);
     }
   };
 
@@ -949,13 +953,13 @@ export function AgreementSigningFlow({
                 </>
               ) : (
                 <>
-                  Sign & Complete <FileSignature className="ml-2" />
+                  Sign & Complete <FileSignature className="ml-2 h-4 w-4" />
                 </>
               )
             ) : (
               <>
                 {currentStep === 0 ? 'Verify & Continue' : 'Next'}
-                <ChevronRight className="ml-2" />
+                <ChevronRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>
