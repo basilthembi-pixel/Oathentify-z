@@ -49,12 +49,17 @@ export default function SignupPage() {
       await signInWithPopup(auth, provider);
       router.push('/');
     } catch (error: any) {
-      console.error('Error during Google sign-in:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Sign-up Failed',
-        description: error.message,
-      });
+      if (error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, do nothing.
+        console.log('Google sign-in cancelled by user.');
+      } else {
+        console.error('Error during Google sign-in:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Sign-up Failed',
+          description: error.message,
+        });
+      }
     } finally {
       setIsGoogleLoading(false);
     }
