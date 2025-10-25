@@ -132,7 +132,7 @@ export default function DashboardPage() {
     const pageTitles = {
       corporate: 'Your Agreements',
       casual: 'Your Promises',
-      relationship: 'Your Relationship Agreements',
+      relationship: 'Your Relationship Commitments',
     };
     
     const pageDescriptions = {
@@ -144,7 +144,7 @@ export default function DashboardPage() {
     const emptyStateTitles = {
         corporate: 'No agreements found',
         casual: 'No promises found',
-        relationship: 'No relationship agreements yet',
+        relationship: 'No relationship commitments yet',
     };
 
     const emptyStateDescriptions = {
