@@ -60,6 +60,10 @@ import { Checkbox } from './ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
+const emailSchema = z.object({
+    email: z.string().email('Please enter a valid email to confirm your identity.'),
+});
+
 const step1Schema = z.object({
   email: z
     .string()
@@ -140,7 +144,10 @@ function Step1({ agreement }: { agreement: Agreement }) {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const { toast } = useToast();
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
+    const emailOutput = await form.trigger('email');
+    if (!emailOutput) return;
+
     // In a real app, this would trigger an API call to send the OTP
     setIsOtpSent(true);
     toast({
@@ -181,7 +188,7 @@ function Step1({ agreement }: { agreement: Agreement }) {
                       disabled={isOtpSent}
                     />
                   </FormControl>
-                  <Button type="button" variant="secondary" onClick={handleSendCode} disabled={isOtpSent || !form.formState.isValid}>
+                  <Button type="button" variant="secondary" onClick={handleSendCode} disabled={isOtpSent || !form.watch('email')}>
                     Send Code
                   </Button>
                 </div>
@@ -973,7 +980,7 @@ export function AgreementSigningFlow({
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep((step) => step - 1);
+      setCurrentStep((step) => step + 1);
     }
   };
 
