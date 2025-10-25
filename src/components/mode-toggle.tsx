@@ -34,6 +34,18 @@ export function ModeToggle() {
           <Heart className="w-4 h-4" />
           Casual
         </button>
+        <button
+          onClick={() => setMode('relationship')}
+          className={cn(
+            'px-3 py-1 rounded-md text-sm font-medium transition flex items-center gap-2',
+            mode === 'relationship'
+              ? 'bg-background shadow text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <Heart className="w-4 h-4 text-pink-500" />
+          Relationship
+        </button>
       </div>
     </div>
   );
