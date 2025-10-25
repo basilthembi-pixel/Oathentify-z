@@ -2,7 +2,7 @@
 
 import { useParams, notFound } from 'next/navigation';
 import { DUMMY_AGREEMENTS } from '@/lib/data';
-import { AgreementSigningFlow } from '@/components/agreement-signing-flow';
+import { AgreementSigningFlow, AlreadySigned } from '@/components/agreement-signing-flow';
 import { Logo } from '@/components/logo';
 import { ShieldCheck } from 'lucide-react';
 
@@ -18,6 +18,9 @@ export default function SigningPage() {
   
   const recipient = agreement.parties.find(p => p.role === 'counter-party');
 
+  const hasRecipientSigned = recipient?.status === 'signed';
+
+
   return (
     <div className="flex min-h-screen flex-col items-center bg-secondary p-4 md:p-8">
         <header className="w-full max-w-4xl mx-auto py-6">
@@ -32,7 +35,11 @@ export default function SigningPage() {
             </div>
         </header>
       <main className="w-full max-w-2xl flex-grow">
-        <AgreementSigningFlow agreement={agreement} recipient={recipient} />
+        {hasRecipientSigned ? (
+          <AlreadySigned agreement={agreement} />
+        ) : (
+          <AgreementSigningFlow agreement={agreement} recipient={recipient} />
+        )}
       </main>
       <footer className="w-full max-w-4xl mx-auto py-4 text-center text-xs text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Oathentify. All rights reserved.</p>

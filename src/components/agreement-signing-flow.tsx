@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,6 +39,7 @@ import {
   Pen,
   UserCheck,
   Video,
+  ShieldCheck,
 } from 'lucide-react';
 import type { Agreement, Party } from '@/lib/types';
 import Link from 'next/link';
@@ -496,6 +498,46 @@ This is a legally binding document.
       </Card>
     </div>
   );
+}
+
+export function AlreadySigned({ agreement }: { agreement: Agreement }) {
+  return (
+    <Card className="overflow-hidden shadow-lg">
+      <CardHeader className="text-center p-6 md:p-8">
+        <div className="mx-auto bg-green-100 text-green-600 h-16 w-16 flex items-center justify-center rounded-full">
+            <ShieldCheck className="h-8 w-8" />
+        </div>
+        <CardTitle className="text-2xl font-headline mt-4">Agreement Already Signed</CardTitle>
+        <CardDescription>
+          You have already signed this agreement. No further action is required from you.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-6 md:px-8">
+        <div className="border rounded-lg p-4 text-sm space-y-3">
+             <div className="flex justify-between">
+                <span className="text-muted-foreground">Agreement:</span>
+                <span className="font-semibold">{agreement.title}</span>
+            </div>
+             <div className="flex justify-between">
+                <span className="text-muted-foreground">Status:</span>
+                <UiBadge variant="outline" className="bg-green-100 text-green-800">Signed</UiBadge>
+            </div>
+             <div className="flex justify-between">
+                <span className="text-muted-foreground">Signed On:</span>
+                <span className="font-semibold">{formatDate(agreement.updatedAt)}</span>
+            </div>
+        </div>
+      </CardContent>
+       <CardFooter className="bg-muted/50 p-4 flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" className="w-full" asChild>
+                <Link href={`/agreements/${agreement.id}`}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Full Agreement
+                </Link>
+            </Button>
+      </CardFooter>
+    </Card>
+  )
 }
 
 const steps = [
