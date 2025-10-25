@@ -78,22 +78,21 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
                   {group.types.map((type) => (
                     <CommandItem
                       key={type.value}
-                      onSelect={() => {
-                        onValueChange(type.value === selectedValue ? "" : type.value)
+                      value={type.value}
+                      onSelect={(currentValue) => {
+                        onValueChange(currentValue === selectedValue ? "" : currentValue)
                         setOpen(false)
                       }}
                     >
-                      <div className="flex flex-col w-full">
-                        <div className="flex items-center">
-                            <Check
-                                className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedValue === type.value ? "opacity-100" : "opacity-0"
-                                )}
-                            />
-                            <span>{type.label}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground ml-6 truncate">{type.description}</span>
+                      <Check
+                          className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedValue === type.value ? "opacity-100" : "opacity-0"
+                          )}
+                      />
+                      <div className="flex-1 flex flex-col">
+                        <span className="flex-1">{type.label}</span>
+                        <span className="text-xs text-muted-foreground truncate">{type.description}</span>
                       </div>
                     </CommandItem>
                   ))}
