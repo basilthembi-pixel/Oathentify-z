@@ -14,6 +14,7 @@ export const DUMMY_AGREEMENTS: Agreement[] = [
     ],
     createdAt: '2024-07-20T10:00:00Z',
     updatedAt: '2024-07-20T10:05:00Z',
+    mode: 'corporate',
   },
   {
     id: 'agr-2',
@@ -27,6 +28,7 @@ export const DUMMY_AGREEMENTS: Agreement[] = [
     ],
     createdAt: '2024-07-15T14:30:00Z',
     updatedAt: '2024-07-16T09:00:00Z',
+    mode: 'corporate',
   },
   {
     id: 'agr-3',
@@ -40,6 +42,7 @@ export const DUMMY_AGREEMENTS: Agreement[] = [
     ],
     createdAt: '2024-07-18T11:00:00Z',
     updatedAt: '2024-07-18T11:00:00Z',
+    mode: 'corporate',
   },
   {
     id: 'agr-4',
@@ -53,6 +56,35 @@ export const DUMMY_AGREEMENTS: Agreement[] = [
     ],
     createdAt: '2024-06-01T09:00:00Z',
     updatedAt: '2024-06-01T09:00:00Z',
+    mode: 'corporate',
+  },
+  {
+    id: 'agr-5',
+    title: 'Pizza Friday Repayment',
+    description: 'I, Bob, promise to pay Alex back $25 for the pizza we shared last Friday. I will pay this back by the end of the day tomorrow.',
+    type: 'Paying back a friend 💰',
+    status: 'executed',
+    parties: [
+      { uid: 'user-1', name: 'Alex Doe', email: 'alex.doe@example.com', role: 'creator', status: 'signed' },
+      { uid: 'user-2', name: 'Bob Smith', email: 'bob.smith@example.com', role: 'counter-party', status: 'signed' },
+    ],
+    createdAt: '2024-07-21T12:00:00Z',
+    updatedAt: '2024-07-21T12:05:00Z',
+    mode: 'casual',
+  },
+  {
+    id: 'agr-6',
+    title: 'Gym Buddy Pact',
+    description: 'We, Diana and Charlie, promise to go to the gym together three times a week (Mon, Wed, Fri) for the next month to keep each other motivated.',
+    type: 'Workout buddy pact 💪',
+    status: 'pending',
+    parties: [
+      { uid: 'user-4', name: 'Diana Prince', email: 'diana.prince@example.com', role: 'creator', status: 'signed' },
+      { uid: 'user-3', name: 'Charlie Brown', email: 'charlie.brown@example.com', role: 'counter-party', status: 'pending' },
+    ],
+    createdAt: '2024-07-22T08:00:00Z',
+    updatedAt: '2024-07-22T08:00:00Z',
+    mode: 'casual',
   },
 ];
 

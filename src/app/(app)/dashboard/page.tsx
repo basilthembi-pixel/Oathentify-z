@@ -15,6 +15,8 @@ import {
   Users,
   PlusCircle,
   Filter,
+  Heart,
+  Building2,
 } from 'lucide-react';
 import { DUMMY_AGREEMENTS } from '@/lib/data';
 import type { Agreement } from '@/lib/types';
@@ -28,6 +30,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useMode } from '@/context/mode-provider';
+import { ModeToggle } from '@/components/mode-toggle';
 
 const statusStyles: { [key: string]: string } = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-700',
@@ -77,7 +81,7 @@ const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
             <Badge variant="outline" className={`${statusStyles[agreement.status]} capitalize`}>{agreement.status}</Badge>
         </div>
         <CardDescription className="flex items-center gap-2 text-sm">
-            <FileText className="h-4 w-4" /> {agreement.type} Agreement
+            <FileText className="h-4 w-4" /> {agreement.type} {agreement.mode === 'corporate' ? 'Agreement' : ''}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -95,7 +99,7 @@ const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
             )}
           </div>
            <Button className="w-full mt-2" variant="outline" asChild>
-            <Link href={`/agreements/${agreement.id}`}>View Agreement</Link>
+            <Link href={`/agreements/${agreement.id}`}>View {agreement.mode === 'corporate' ? 'Agreement' : 'Promise'}</Link>
           </Button>
         </div>
       </CardContent>
@@ -105,6 +109,7 @@ const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
 
 
 export default function DashboardPage() {
+    const { mode, setMode } = useMode();
     const [filters, setFilters] = useState<Record<string, boolean>>({
         pending: true,
         executed: true,
@@ -119,7 +124,7 @@ export default function DashboardPage() {
     };
 
     const filteredAgreements = DUMMY_AGREEMENTS.filter(
-        agreement => filters[agreement.status]
+        agreement => filters[agreement.status] && agreement.mode === mode
     );
 
     const filterStatuses = Object.keys(statusStyles);
@@ -128,10 +133,15 @@ export default function DashboardPage() {
         <div className="container mx-auto p-4 md:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div>
-                <h2 className="text-2xl font-bold font-headline text-foreground">Your Agreements</h2>
-                <p className="text-muted-foreground">Manage all your digital commitments in one place.</p>
+                <h2 className="text-2xl font-bold font-headline text-foreground">
+                    {mode === 'corporate' ? 'Your Agreements' : 'Your Promises'}
+                </h2>
+                <p className="text-muted-foreground">
+                    {mode === 'corporate' ? 'Manage all your digital commitments in one place.' : "Keep track of your promises with friends & family."}
+                </p>
             </div>
             <div className="flex items-center gap-2">
+                 <ModeToggle />
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="gap-2">
@@ -158,7 +168,7 @@ export default function DashboardPage() {
                 <Button asChild className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
                     <Link href="/new">
                         <PlusCircle className="h-4 w-4" />
-                        New Agreement
+                        {mode === 'corporate' ? 'New Agreement' : 'New Promise'}
                     </Link>
                 </Button>
             </div>
@@ -172,13 +182,15 @@ export default function DashboardPage() {
             </div>
         ) : (
             <div className="text-center py-20 border-2 border-dashed rounded-lg">
-                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-semibold text-foreground">No agreements found</h3>
+                 {mode === 'corporate' ? <Building2 className="mx-auto h-12 w-12 text-muted-foreground" /> : <Heart className="mx-auto h-12 w-12 text-muted-foreground" />}
+                <h3 className="mt-4 text-lg font-semibold text-foreground">
+                    No {mode === 'corporate' ? 'agreements' : 'promises'} found
+                </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                    Your filtered agreements will appear here.
+                    Your filtered {mode === 'corporate' ? 'agreements' : 'promises'} will appear here.
                 </p>
                 <Button className="mt-6" asChild>
-                    <Link href="/new">Create New Agreement</Link>
+                    <Link href="/new">Create New {mode === 'corporate' ? 'Agreement' : 'Promise'}</Link>
                 </Button>
             </div>
         )}
