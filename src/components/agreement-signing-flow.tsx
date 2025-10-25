@@ -369,6 +369,51 @@ function VideoSignatureStep() {
 }
 
 function Step5({ agreement }: { agreement: Agreement }) {
+  const handleDownload = () => {
+    const creator = agreement.parties.find(p => p.role === 'creator');
+    const recipient = agreement.parties.find(p => p.role === 'counter-party');
+
+    const content = `
+AGREEMENT
+-------------------------
+Title: ${agreement.title}
+ID: ${agreement.id}
+Type: ${agreement.type}
+Status: ${agreement.status}
+Created At: ${formatDate(agreement.createdAt)}
+
+Parties Involved
+-------------------------
+Creator:
+- Name: ${creator?.name}
+- Email: ${creator?.email}
+- Status: ${creator?.status}
+
+Counter-Party:
+- Name: ${recipient?.name}
+- Email: ${recipient?.email}
+- Status: Signed
+
+Agreement Terms
+-------------------------
+${agreement.description}
+
+-------------------------
+Signed on: ${new Date().toLocaleString()}
+This is a legally binding document.
+    `;
+
+    const blob = new Blob([content.trim()], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${agreement.title.replace(/\s/g, '_')}_signed.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -422,13 +467,15 @@ function Step5({ agreement }: { agreement: Agreement }) {
           <CardTitle>Actions</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-4">
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleDownload}>
             <Download className="mr-2 h-4 w-4" />
             Download a Copy
           </Button>
-           <Button variant="outline" className="w-full">
-            <FileText className="mr-2 h-4 w-4" />
-            View Full Agreement
+           <Button variant="outline" className="w-full" asChild>
+            <Link href={`/agreements/${agreement.id}`}>
+              <FileText className="mr-2 h-4 w-4" />
+              View Full Agreement
+            </Link>
           </Button>
         </CardContent>
       </Card>
