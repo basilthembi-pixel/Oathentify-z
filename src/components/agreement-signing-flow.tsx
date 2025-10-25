@@ -205,7 +205,7 @@ const signatureMethods = [
     title: 'Voice Signature',
     description: 'Record a verbal agreement',
     icon: Mic,
-    badge: 'PREMIUM',
+    badge: 'FREE',
   },
   {
     name: 'video',
