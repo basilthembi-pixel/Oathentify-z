@@ -141,6 +141,24 @@ export default function DashboardPage() {
         relationship: "Clarity strengthens love - you're building something beautiful",
     };
     
+    const emptyStateTitles = {
+        corporate: 'No agreements found',
+        casual: 'No promises found',
+        relationship: 'No relationship agreements yet',
+    };
+
+    const emptyStateDescriptions = {
+        corporate: 'Your filtered agreements will appear here.',
+        casual: 'Your filtered promises will appear here.',
+        relationship: 'Create agreements for living together, financial planning, and more.',
+    };
+    
+    const ctaTexts = {
+        corporate: 'New Agreement',
+        casual: 'New Promise',
+        relationship: 'New Agreement'
+    };
+
     const emptyStateIcons = {
         corporate: <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />,
         casual: <Heart className="mx-auto h-12 w-12 text-muted-foreground" />,
@@ -186,7 +204,7 @@ export default function DashboardPage() {
                 <Button asChild className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
                     <Link href="/new">
                         <PlusCircle className="h-4 w-4" />
-                        {mode === 'corporate' ? 'New Agreement' : 'New Promise'}
+                        {ctaTexts[mode]}
                     </Link>
                 </Button>
             </div>
@@ -202,13 +220,13 @@ export default function DashboardPage() {
             <div className="text-center py-20 border-2 border-dashed rounded-lg">
                  {emptyStateIcons[mode]}
                 <h3 className="mt-4 text-lg font-semibold text-foreground">
-                    No {mode === 'corporate' ? 'agreements' : 'promises'} found
+                    {emptyStateTitles[mode]}
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                    Your filtered {mode === 'corporate' ? 'agreements' : 'promises'} will appear here.
+                    {emptyStateDescriptions[mode]}
                 </p>
                 <Button className="mt-6" asChild>
-                    <Link href="/new">Create New {mode === 'corporate' ? 'Agreement' : 'Promise'}</Link>
+                    <Link href="/new">Create {ctaTexts[mode]}</Link>
                 </Button>
             </div>
         )}
