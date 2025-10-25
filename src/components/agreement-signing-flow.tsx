@@ -76,7 +76,6 @@ function Step1({
                 <Input
                   placeholder="Enter your email to continue..."
                   {...field}
-                  defaultValue={recipient?.email}
                 />
               </FormControl>
               <FormDescription>
