@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, FileText, Bot, Share2, Mic, Video } from 'lucide-react';
 import { Logo } from '@/components/logo';
+import Image from 'next/image';
 
 export default function LandingPage() {
   return (
@@ -35,6 +36,18 @@ export default function LandingPage() {
               Learn More
             </Button>
           </div>
+           <div className="mt-16 relative w-full max-w-4xl mx-auto">
+              <div className="aspect-[16/9] rounded-xl shadow-2xl overflow-hidden border-4 border-primary/10">
+                <Image
+                  src="https://picsum.photos/seed/handshake/1280/720"
+                  alt="Digital agreement handshake"
+                  fill
+                  priority
+                  className="object-cover"
+                  data-ai-hint="agreement handshake"
+                />
+              </div>
+            </div>
         </section>
 
         <section id="how-it-works" className="py-20 bg-secondary">
