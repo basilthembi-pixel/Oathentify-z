@@ -277,7 +277,7 @@ const signatureMethods = [
     title: 'Video Signature',
     description: 'Record a video confirmation',
     icon: Video,
-    badge: 'PREMIUM',
+    badge: 'FREE',
   },
 ];
 

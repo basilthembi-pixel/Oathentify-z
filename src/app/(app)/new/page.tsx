@@ -141,7 +141,6 @@ function Step0() {
                         mode === 'relationship' && "ring-2 ring-pink-500 border-pink-500"
                     )}
                 >
-                     <Badge className="absolute -top-3 right-4 bg-pink-500 text-white">Premium ✨</Badge>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
                             <HeartHandshakeIcon className="text-pink-500"/> Relationship
