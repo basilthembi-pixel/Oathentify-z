@@ -32,6 +32,7 @@ import {
   FileSignature,
   FileText,
   Info,
+  Link2Off,
   Loader2,
   Mail,
   Mic,
@@ -40,6 +41,8 @@ import {
   UserCheck,
   Video,
   ShieldCheck,
+  Clock,
+  Home,
 } from 'lucide-react';
 import type { Agreement, Party } from '@/lib/types';
 import Link from 'next/link';
@@ -539,6 +542,56 @@ export function AlreadySigned({ agreement }: { agreement: Agreement }) {
     </Card>
   )
 }
+
+export function InvalidLinkError() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center p-4">
+        <Card className="w-full max-w-md p-8">
+            <div className="mx-auto bg-red-100 text-red-600 h-16 w-16 flex items-center justify-center rounded-full">
+                <Link2Off className="h-8 w-8" />
+            </div>
+            <h2 className="mt-6 text-2xl font-bold font-headline">Invalid or Expired Link</h2>
+            <p className="mt-2 text-muted-foreground">
+                This signing link may have expired, been used already, or is incorrect. Please contact the sender to get a new link.
+            </p>
+            <div className="mt-6">
+                <Button asChild>
+                    <Link href="/">
+                        <Home className="mr-2 h-4 w-4" />
+                        Go to Homepage
+                    </Link>
+                </Button>
+            </div>
+        </Card>
+    </div>
+  );
+}
+
+export function ExpiredAgreement({ agreement }: { agreement: Agreement }) {
+  const creator = agreement.parties.find(p => p.role === 'creator');
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center p-4">
+        <Card className="w-full max-w-md p-8">
+            <div className="mx-auto bg-yellow-100 text-yellow-600 h-16 w-16 flex items-center justify-center rounded-full">
+                <Clock className="h-8 w-8" />
+            </div>
+            <h2 className="mt-6 text-2xl font-bold font-headline">Agreement Expired</h2>
+            <p className="mt-2 text-muted-foreground">
+                This agreement, "{agreement.title}", has expired and can no longer be signed.
+            </p>
+             <div className="mt-6">
+                <Button asChild variant="secondary">
+                    <a href={`mailto:${creator?.email}`}>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Contact {creator?.name}
+                    </a>
+                </Button>
+            </div>
+        </Card>
+    </div>
+  );
+}
+
 
 const steps = [
   { id: 'Step 1', name: 'Verify', schema: step1Schema, icon: UserCheck },

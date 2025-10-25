@@ -2,7 +2,7 @@
 
 import { useParams, notFound } from 'next/navigation';
 import { DUMMY_AGREEMENTS } from '@/lib/data';
-import { AgreementSigningFlow, AlreadySigned } from '@/components/agreement-signing-flow';
+import { AgreementSigningFlow, AlreadySigned, ExpiredAgreement, InvalidLinkError } from '@/components/agreement-signing-flow';
 import { Logo } from '@/components/logo';
 import { ShieldCheck } from 'lucide-react';
 
@@ -12,12 +12,22 @@ export default function SigningPage() {
 
   const agreement = DUMMY_AGREEMENTS.find((a) => a.id === id);
 
+  // Case 1: Agreement not found
   if (!agreement) {
-    notFound();
+    // This will be caught by notFound() in a real app,
+    // but we can render a friendly component for demonstration.
+    // notFound(); 
+    return <InvalidLinkError />;
   }
   
   const recipient = agreement.parties.find(p => p.role === 'counter-party');
 
+  // Case 2: Agreement has expired
+  if (agreement.status === 'expired') {
+    return <ExpiredAgreement agreement={agreement} />;
+  }
+  
+  // Case 3: Recipient has already signed
   const hasRecipientSigned = recipient?.status === 'signed';
 
 
