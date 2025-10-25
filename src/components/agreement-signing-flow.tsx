@@ -43,6 +43,10 @@ import {
   ShieldCheck,
   Clock,
   Home,
+  Waves,
+  Play,
+  Pause,
+  RotateCcw,
 } from 'lucide-react';
 import type { Agreement, Party } from '@/lib/types';
 import Link from 'next/link';
@@ -351,13 +355,123 @@ function TextSignatureStep() {
 }
 
 function VoiceSignatureStep() {
+  const { toast } = useToast();
+  const [hasMicPermission, setHasMicPermission] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const getMicPermission = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        setHasMicPermission(true);
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        setHasMicPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Microphone Access Denied',
+          description: 'Please enable microphone permissions in your browser settings.',
+        });
+      }
+    };
+    getMicPermission();
+  }, [toast]);
+
+  const handleStartRecording = async () => {
+    if (!hasMicPermission) return;
+    setAudioUrl(null);
+    setIsRecording(true);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream);
+    const audioChunks: Blob[] = [];
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      audioChunks.push(event.data);
+    };
+    mediaRecorderRef.current.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+    };
+    mediaRecorderRef.current.start();
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const handleTogglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  useEffect(() => {
+    if (audioRef.current) {
+      const handleEnded = () => setIsPlaying(false);
+      audioRef.current.addEventListener('ended', handleEnded);
+      return () => {
+        if(audioRef.current) {
+            audioRef.current.removeEventListener('ended', handleEnded);
+        }
+      };
+    }
+  }, [audioUrl]);
+  
+  if (!hasMicPermission) {
+    return (
+        <Alert variant="destructive">
+            <Mic className="h-4 w-4" />
+            <AlertTitle>Microphone Access Required</AlertTitle>
+            <AlertDescription>
+            Please allow microphone access in your browser to use this feature. You may need to refresh the page after granting permission.
+            </AlertDescription>
+        </Alert>
+    );
+  }
+
   return (
-    <div className="text-center py-10 border-2 border-dashed rounded-lg">
-      <Mic className="mx-auto h-12 w-12 text-muted-foreground" />
-      <h3 className="mt-4 text-lg font-semibold">Voice Signature</h3>
-      <p className="mt-2 text-sm text-muted-foreground">
-        This feature is coming soon.
-      </p>
+    <div className="space-y-4">
+        <div>
+            <h3 className="font-semibold text-lg font-headline">Record Voice Signature</h3>
+            <p className="text-muted-foreground text-sm">Record yourself stating your agreement.</p>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border p-6 bg-secondary/50 min-h-[200px]">
+            {audioUrl ? (
+                <div className="flex w-full items-center justify-center gap-4">
+                    <Button onClick={handleTogglePlay} size="icon" variant="outline" className="rounded-full h-14 w-14">
+                        {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                    </Button>
+                    <audio ref={audioRef} src={audioUrl} />
+                    <Button onClick={() => setAudioUrl(null)} size="icon" variant="outline" className="rounded-full h-14 w-14">
+                        <RotateCcw className="h-6 w-6 text-destructive" />
+                    </Button>
+                </div>
+            ) : (
+                <>
+                    <Button 
+                        onClick={isRecording ? handleStopRecording : handleStartRecording} 
+                        size="icon" 
+                        className={cn("rounded-full h-20 w-20 transition-all", isRecording && "bg-red-500 hover:bg-red-600 animate-pulse")}
+                    >
+                        <Mic className="h-8 w-8" />
+                    </Button>
+                    <p className="text-sm text-muted-foreground">{isRecording ? "Recording... Click to stop." : "Click to start recording"}</p>
+                </>
+            )}
+             <Waves className="w-full h-10 text-primary/20" />
+        </div>
     </div>
   );
 }
@@ -758,6 +872,8 @@ export function AgreementSigningFlow({
     }
   };
 
+  const isVoiceOrVideoStep = currentStep === 3 && (signatureMethod === 'voice' || signatureMethod === 'video');
+
   return (
     <div className="space-y-6 pb-24 md:pb-6">
       <div>
@@ -815,7 +931,7 @@ export function AgreementSigningFlow({
           </Button>
           <Button
             onClick={next}
-            disabled={isSubmitting || (currentStep === 3 && signatureMethod !== 'text')} // Disable for non-text methods for now
+            disabled={isSubmitting || isVoiceOrVideoStep}
             className="bg-accent hover:bg-accent/90 text-accent-foreground"
           >
             {currentStep === steps.length - 2 ? (
