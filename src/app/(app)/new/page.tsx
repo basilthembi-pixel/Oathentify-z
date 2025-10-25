@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import {
   Bot,
   Building2,
@@ -94,7 +94,7 @@ function Step0() {
                 <Card 
                     onClick={() => setMode('corporate')}
                     className={cn(
-                        "cursor-pointer hover:shadow-lg transition-shadow",
+                        "cursor-pointer hover:shadow-lg transition-shadow flex flex-col",
                         mode === 'corporate' && "ring-2 ring-primary border-primary"
                     )}
                 >
@@ -104,11 +104,18 @@ function Step0() {
                         </CardTitle>
                         <CardDescription>For business, freelance, and other professional or legally-focused agreements.</CardDescription>
                     </CardHeader>
+                    <CardContent className="flex-grow flex flex-col justify-end">
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-primary/70" /> Service contracts</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-primary/70" /> NDAs & legal docs</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-primary/70" /> Partnership agreements</li>
+                        </ul>
+                    </CardContent>
                 </Card>
                 <Card 
                     onClick={() => setMode('casual')}
                     className={cn(
-                        "cursor-pointer hover:shadow-lg transition-shadow",
+                        "cursor-pointer hover:shadow-lg transition-shadow flex flex-col",
                         mode === 'casual' && "ring-2 ring-primary border-primary"
                     )}
                 >
@@ -118,11 +125,18 @@ function Step0() {
                         </CardTitle>
                          <CardDescription>For everyday commitments between friends, family, and roommates.</CardDescription>
                     </CardHeader>
+                     <CardContent className="flex-grow flex flex-col justify-end">
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-primary/70" /> Friend loans</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-primary/70" /> Roommate agreements</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-primary/70" /> Shared expenses</li>
+                        </ul>
+                    </CardContent>
                 </Card>
                  <Card 
                     onClick={() => setMode('relationship')}
                     className={cn(
-                        "cursor-pointer hover:shadow-lg transition-shadow relative",
+                        "cursor-pointer hover:shadow-lg transition-shadow relative flex flex-col",
                         mode === 'relationship' && "ring-2 ring-pink-500 border-pink-500"
                     )}
                 >
@@ -133,6 +147,14 @@ function Step0() {
                         </CardTitle>
                          <CardDescription>For couples building strong foundations and clear expectations.</CardDescription>
                     </CardHeader>
+                    <CardContent className="flex-grow flex flex-col justify-end">
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Living together</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Financial planning</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Boundaries & goals</li>
+                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Protective agreements</li>
+                        </ul>
+                    </CardContent>
                 </Card>
             </div>
         </div>
@@ -435,7 +457,7 @@ export default function NewAgreementPage() {
             </form>
           </FormProvider>
         </CardContent>
-        <div className="flex justify-between p-6 bg-muted/50 border-t">
+        <CardFooter className="flex justify-between p-6 bg-muted/50 border-t">
           <Button onClick={prev} variant="outline" disabled={currentStep === 0}>
             <ChevronLeft className="mr-2 h-4 w-4" /> Back
           </Button>
@@ -453,7 +475,7 @@ export default function NewAgreementPage() {
             )}
             {currentStep < steps.length - 2 && <ChevronRight className="ml-2 h-4 w-4" />}
           </Button>
-        </div>
+        </CardFooter>
       </Card>
     </div>
   );
