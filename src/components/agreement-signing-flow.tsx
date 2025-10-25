@@ -28,6 +28,7 @@ import {
   ChevronRight,
   FileSignature,
   FileText,
+  Info,
   Loader2,
   Mic,
   PartyPopper,
@@ -40,6 +41,8 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Badge as UiBadge } from './ui/badge';
 import { cn } from '@/lib/utils';
+import { Checkbox } from './ui/checkbox';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 const step1Schema = z.object({
   email: z
@@ -53,12 +56,15 @@ const step3Schema = z.object({
     }),
 });
 
-const step4Schema = z.object({
-  signature: z.string().min(2, 'Please type your full name to sign.'),
+const textSignatureSchema = z.object({
+    signature: z.string().min(2, 'Please type your full name to sign.'),
+    agreedToTerms: z.literal<boolean>(true, {
+        errorMap: () => ({ message: 'You must agree to the terms to sign.' }),
+    }),
 });
 
 
-type FormValues = z.infer<typeof step1Schema> & z.infer<typeof step3Schema> & z.infer<typeof step4Schema>;
+type FormValues = z.infer<typeof step1Schema> & z.infer<typeof step3Schema> & z.infer<typeof textSignatureSchema>;
 
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -260,16 +266,19 @@ function Step3() {
     );
 }
 
-function Step4() {
+function TextSignatureStep() {
   const form = useFormContext<FormValues>();
+  const signatureName = form.watch('signature');
 
   return (
-    <div>
-      <h3 className="font-semibold text-lg font-headline">Provide Signature</h3>
-      <p className="text-muted-foreground text-sm mb-4">
-        Please type your full name in the box below to electronically sign this
-        agreement. This is a legally binding signature.
-      </p>
+    <div className="space-y-6">
+      <div>
+        <h3 className="font-semibold text-lg font-headline">Type Your Signature</h3>
+        <p className="text-muted-foreground text-sm">
+          Please type your full name in the box below to electronically sign this
+          agreement. This is a legally binding signature.
+        </p>
+      </div>
       <FormField
         control={form.control}
         name="signature"
@@ -283,8 +292,59 @@ function Step4() {
           </FormItem>
         )}
       />
+      <FormField
+        control={form.control}
+        name="agreedToTerms"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              <FormLabel>
+                I, <span className="font-bold">{signatureName || '[Your Name]'}</span>, agree to all terms in this agreement.
+              </FormLabel>
+              <FormDescription>
+                By signing, you acknowledge this is legally binding under the ESIGN Act.
+              </FormDescription>
+               <FormMessage />
+            </div>
+          </FormItem>
+        )}
+      />
+        <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Notice</AlertTitle>
+            <AlertDescription>
+                Your IP address and approximate location will be securely recorded as part of the signature.
+            </AlertDescription>
+        </Alert>
+
     </div>
   );
+}
+
+function VoiceSignatureStep() {
+    return (
+        <div className="text-center py-10 border-2 border-dashed rounded-lg">
+             <Mic className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold">Voice Signature</h3>
+            <p className="mt-2 text-sm text-muted-foreground">This feature is coming soon.</p>
+        </div>
+    )
+}
+
+function VideoSignatureStep() {
+    return (
+        <div className="text-center py-10 border-2 border-dashed rounded-lg">
+             <Video className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold">Video Signature</h3>
+            <p className="mt-2 text-sm text-muted-foreground">This feature is coming soon.</p>
+        </div>
+    )
 }
 
 function Step5() {
@@ -317,7 +377,7 @@ const steps = [
   { id: 'Step 1', name: 'Verify', schema: step1Schema, icon: UserCheck },
   { id: 'Step 2', name: 'Review', icon: FileText },
   { id: 'Step 3', name: 'Method', schema: step3Schema, icon: FileSignature },
-  { id: 'Step 4', name: 'Sign', schema: step4Schema, icon: FileSignature },
+  { id: 'Step 4', name: 'Sign', schema: textSignatureSchema, icon: FileSignature },
   { id: 'Step 5', name: 'Complete', icon: PartyPopper },
 ];
 
@@ -337,18 +397,34 @@ export function AgreementSigningFlow({
       email: recipient?.email || '',
       signatureMethod: 'text',
       signature: '',
+      agreedToTerms: false,
     },
     mode: 'onChange',
   });
 
-  const { trigger } = methods;
+  const { trigger, watch } = methods;
+  const signatureMethod = watch('signatureMethod');
 
   const next = async () => {
     const currentSchema = steps[currentStep].schema;
     if (currentSchema) {
-      const fieldsToValidate = Object.keys(currentSchema.shape) as (keyof FormValues)[];
-      const output = await trigger(fieldsToValidate, { shouldFocus: true });
-      if (!output) return;
+        let fieldsToValidate: (keyof FormValues)[];
+        if (currentStep === 3) {
+            // Special handling for step 4 based on signature method
+            if (signatureMethod === 'text') {
+                fieldsToValidate = Object.keys(textSignatureSchema.shape) as (keyof FormValues)[];
+            } else {
+                // For voice/video, we don't have a schema yet, so we just proceed
+                fieldsToValidate = [];
+            }
+        } else {
+             fieldsToValidate = Object.keys(currentSchema.shape) as (keyof FormValues)[];
+        }
+      
+      if (fieldsToValidate.length > 0) {
+        const output = await trigger(fieldsToValidate, { shouldFocus: true });
+        if (!output) return;
+      }
     }
 
 
@@ -384,6 +460,19 @@ export function AgreementSigningFlow({
         </CardContent>
       </Card>
     );
+  }
+  
+  const renderSignatureStep = () => {
+      switch (signatureMethod) {
+          case 'text':
+              return <TextSignatureStep />;
+          case 'voice':
+              return <VoiceSignatureStep />;
+          case 'video':
+              return <VideoSignatureStep />;
+          default:
+              return null;
+      }
   }
 
   return (
@@ -427,7 +516,7 @@ export function AgreementSigningFlow({
           {currentStep === 3 && (
             <Card>
               <CardContent className="p-6">
-                <Step4 />
+                {renderSignatureStep()}
               </CardContent>
             </Card>
           )}
