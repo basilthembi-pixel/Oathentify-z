@@ -128,16 +128,34 @@ export default function DashboardPage() {
     );
 
     const filterStatuses = Object.keys(statusStyles);
+    
+    const pageTitles = {
+      corporate: 'Your Agreements',
+      casual: 'Your Promises',
+      relationship: 'Your Relationship Agreements',
+    };
+    
+    const pageDescriptions = {
+        corporate: 'Manage all your digital commitments in one place.',
+        casual: "Keep track of your promises with friends & family.",
+        relationship: "Clarity strengthens love - you're building something beautiful",
+    };
+    
+    const emptyStateIcons = {
+        corporate: <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />,
+        casual: <Heart className="mx-auto h-12 w-12 text-muted-foreground" />,
+        relationship: <Heart className="mx-auto h-12 w-12 text-muted-foreground" />
+    };
 
     return (
         <div className="container mx-auto p-4 md:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div>
                 <h2 className="text-2xl font-bold font-headline text-foreground">
-                    {mode === 'corporate' ? 'Your Agreements' : 'Your Promises'}
+                    {pageTitles[mode]}
                 </h2>
                 <p className="text-muted-foreground">
-                    {mode === 'corporate' ? 'Manage all your digital commitments in one place.' : "Keep track of your promises with friends & family."}
+                    {pageDescriptions[mode]}
                 </p>
             </div>
             <div className="flex items-center gap-2">
@@ -182,7 +200,7 @@ export default function DashboardPage() {
             </div>
         ) : (
             <div className="text-center py-20 border-2 border-dashed rounded-lg">
-                 {mode === 'corporate' ? <Building2 className="mx-auto h-12 w-12 text-muted-foreground" /> : <Heart className="mx-auto h-12 w-12 text-muted-foreground" />}
+                 {emptyStateIcons[mode]}
                 <h3 className="mt-4 text-lg font-semibold text-foreground">
                     No {mode === 'corporate' ? 'agreements' : 'promises'} found
                 </h3>

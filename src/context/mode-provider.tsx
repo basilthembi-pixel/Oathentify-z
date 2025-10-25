@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Mode = 'corporate' | 'casual';
+type Mode = 'corporate' | 'casual' | 'relationship';
 
 interface ModeContextType {
   mode: Mode;
@@ -16,7 +16,7 @@ export function ModeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedMode = localStorage.getItem('oathentify_mode') as Mode | null;
-    if (storedMode && (storedMode === 'corporate' || storedMode === 'casual')) {
+    if (storedMode && ['corporate', 'casual', 'relationship'].includes(storedMode)) {
       setMode(storedMode);
     }
   }, []);

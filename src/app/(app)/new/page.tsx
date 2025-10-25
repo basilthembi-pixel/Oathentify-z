@@ -44,6 +44,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AgreementShare } from '@/components/agreement-share';
 import { useMode } from '@/context/mode-provider';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const step0Schema = z.object({
   // No validation needed for this step, it's just a selection
@@ -72,13 +73,24 @@ const casualAgreementTypes = [
     "Something else ✨"
 ];
 
+const HeartHandshakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+        <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.82 2.96 0l.9-1.04" />
+        <path d="m15 8.04 2.96.96" />
+        <path d="m9.04 16.04-2.96-.96" />
+        <path d="m14.96 13.04.9-1.04c.82-.82.82-2.27 0-3.08v0a2.17 2.17 0 0 0-3.08 0l-.9.9" />
+    </svg>
+);
+
+
 function Step0() {
     const { mode, setMode } = useMode();
     return (
         <div>
             <h2 className="text-xl font-bold font-headline text-center mb-2">How will you use Oathentify for this?</h2>
             <p className="text-muted-foreground text-center mb-6">Choose a style for your agreement. You can always change it later.</p>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
                 <Card 
                     onClick={() => setMode('corporate')}
                     className={cn(
@@ -105,6 +117,21 @@ function Step0() {
                             <Heart className="text-primary"/> Casual
                         </CardTitle>
                          <CardDescription>For everyday commitments between friends, family, and roommates.</CardDescription>
+                    </CardHeader>
+                </Card>
+                 <Card 
+                    onClick={() => setMode('relationship')}
+                    className={cn(
+                        "cursor-pointer hover:shadow-lg transition-shadow relative",
+                        mode === 'relationship' && "ring-2 ring-pink-500 border-pink-500"
+                    )}
+                >
+                     <Badge className="absolute -top-3 right-4 bg-pink-500 text-white">Premium ✨</Badge>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 font-headline">
+                            <HeartHandshakeIcon className="text-pink-500"/> Relationship
+                        </CardTitle>
+                         <CardDescription>For couples building strong foundations and clear expectations.</CardDescription>
                     </CardHeader>
                 </Card>
             </div>

@@ -15,5 +15,5 @@ export type Agreement = {
   parties: Party[];
   createdAt: string;
   updatedAt: string;
-  mode: 'corporate' | 'casual';
+  mode: 'corporate' | 'casual' | 'relationship';
 };
