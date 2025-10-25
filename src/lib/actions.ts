@@ -1,20 +1,18 @@
 'use server';
 
 import { suggestAgreementTerms } from '@/ai/flows/suggest-agreement-terms';
-import { z } from 'zod';
 
-const SuggestTermsStateSchema = z.object({
-  suggestedTerms: z.string().optional(),
-  error: z.string().optional(),
-});
-
-type SuggestTermsState = z.infer<typeof SuggestTermsStateSchema>;
+interface SuggestTermsState {
+  suggestedTerms?: string;
+  error?: string;
+}
 
 export async function suggestTermsAction(
   prevState: SuggestTermsState,
-  formData: FormData
 ): Promise<SuggestTermsState> {
-  const agreementType = formData.get('agreementType') as string;
+  // This function is now simplified as we handle form data in the component.
+  // It expects the agreementType to be passed in the prevState object.
+  const { agreementType } = prevState as { agreementType: string };
 
   if (!agreementType) {
     return { error: 'Agreement type is required to suggest terms.' };

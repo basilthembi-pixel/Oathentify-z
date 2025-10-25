@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition, useEffect, useRef, useActionState } from 'react';
+import { useState, useTransition, useEffect, useRef } from 'react';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -57,35 +57,36 @@ function Step1() {
   const form = useFormContext<FormValues>();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [aiState, formAction] = useActionState(suggestTermsAction, {
-    suggestedTerms: '',
-    error: '',
-  });
 
   const handleSuggestTerms = () => {
-    startTransition(() => {
-        const formData = new FormData();
-        formData.append('agreementType', form.getValues('agreementType'));
-        formAction(formData);
+    const agreementType = form.getValues('agreementType');
+    if (!agreementType) {
+        toast({
+            variant: 'destructive',
+            title: 'No Agreement Type',
+            description: 'Please select an agreement type first.',
+        });
+        return;
+    }
+    
+    startTransition(async () => {
+        const result = await suggestTermsAction({ agreementType });
+        if (result.suggestedTerms) {
+            form.setValue('description', result.suggestedTerms, { shouldValidate: true });
+            toast({
+                title: 'AI Suggestion Added',
+                description: 'The AI-suggested terms have been added to the description.',
+            });
+        }
+        if (result.error) {
+            toast({
+                variant: 'destructive',
+                title: 'AI Suggestion Failed',
+                description: result.error,
+            });
+        }
     });
   };
-
-  useEffect(() => {
-    if (aiState.suggestedTerms) {
-      form.setValue('description', aiState.suggestedTerms, { shouldValidate: true });
-      toast({
-        title: 'AI Suggestion Added',
-        description: 'The AI-suggested terms have been added to the description.',
-      });
-    }
-    if (aiState.error) {
-      toast({
-        variant: 'destructive',
-        title: 'AI Suggestion Failed',
-        description: aiState.error,
-      });
-    }
-  }, [aiState, form, toast]);
 
   return (
     <div className="space-y-6">
@@ -291,7 +292,7 @@ export default function NewAgreementPage() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
   
