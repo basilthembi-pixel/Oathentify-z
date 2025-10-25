@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useTransition } from 'react';
+import { useState, useMemo, useTransition, useRef, useEffect } from 'react';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
@@ -51,6 +51,7 @@ import { Badge as UiBadge } from './ui/badge';
 import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 const step1Schema = z.object({
   email: z
@@ -362,13 +363,67 @@ function VoiceSignatureStep() {
 }
 
 function VideoSignatureStep() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this feature.',
+        });
+      }
+    };
+
+    getCameraPermission();
+  }, [toast]);
+
   return (
-    <div className="text-center py-10 border-2 border-dashed rounded-lg">
-      <Video className="mx-auto h-12 w-12 text-muted-foreground" />
-      <h3 className="mt-4 text-lg font-semibold">Video Signature</h3>
-      <p className="mt-2 text-sm text-muted-foreground">
-        This feature is coming soon.
-      </p>
+    <div className="space-y-4">
+       <div>
+        <h3 className="font-semibold text-lg font-headline">
+          Record Video Signature
+        </h3>
+        <p className="text-muted-foreground text-sm">
+          Record a short video of yourself stating your agreement.
+        </p>
+      </div>
+      <div className="relative aspect-video w-full bg-black rounded-lg overflow-hidden">
+        <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+        {!hasCameraPermission && (
+             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4">
+                 <Video className="h-12 w-12 text-white/50" />
+                 <p className="mt-2 text-center">Camera access is required for video signatures.</p>
+             </div>
+        )}
+      </div>
+      
+      {!hasCameraPermission && (
+          <Alert variant="destructive">
+              <AlertTitle>Camera Access Required</AlertTitle>
+              <AlertDescription>
+                Please allow camera access in your browser settings to use this feature. You may need to refresh the page after granting permission.
+              </AlertDescription>
+          </Alert>
+      )}
+
+      <div className="flex justify-center">
+        <Button size="lg" disabled={!hasCameraPermission} className="rounded-full h-16 w-16 p-0">
+          <div className="h-8 w-8 rounded-full bg-red-500 border-2 border-white"></div>
+        </Button>
+      </div>
     </div>
   );
 }
