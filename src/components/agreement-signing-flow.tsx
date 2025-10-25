@@ -482,9 +482,11 @@ function VideoSignatureStep() {
   const { toast } = useToast();
 
   useEffect(() => {
+    let stream: MediaStream | null = null;
+  
     const getCameraPermission = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
 
         if (videoRef.current) {
@@ -502,6 +504,12 @@ function VideoSignatureStep() {
     };
 
     getCameraPermission();
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
   }, [toast]);
 
   return (
@@ -833,7 +841,7 @@ export function AgreementSigningFlow({
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep((step) => step - 1);
+      setCurrentStep((step) => step + 1);
     }
   };
 
