@@ -47,6 +47,8 @@ import {
   Play,
   Pause,
   RotateCcw,
+  Circle,
+  VideoIcon,
 } from 'lucide-react';
 import type { Agreement, Party } from '@/lib/types';
 import Link from 'next/link';
@@ -482,22 +484,28 @@ function VoiceSignatureStep() {
 
 function VideoSignatureStep() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     let stream: MediaStream | null = null;
-  
     const getCameraPermission = async () => {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         setHasCameraPermission(true);
-
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
+      } catch (err) {
+        console.error('Error accessing camera:', err);
         setHasCameraPermission(false);
         toast({
           variant: 'destructive',
@@ -513,46 +521,128 @@ function VideoSignatureStep() {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
     };
   }, [toast]);
+  
+  const handleStartRecording = () => {
+    if (!videoRef.current?.srcObject) return;
+
+    setError(null);
+    setIsRecording(true);
+    setRecordingTime(0);
+    const stream = videoRef.current.srcObject as MediaStream;
+    mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    
+    const recordedChunks: Blob[] = [];
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
+    };
+
+    mediaRecorderRef.current.onstop = () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      if (recordingTime < 15) {
+        setError('Recording must be at least 15 seconds long.');
+        setIsRecording(false);
+        setVideoUrl(null);
+        return;
+      }
+      const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+      setVideoUrl(URL.createObjectURL(videoBlob));
+      setIsRecording(false);
+    };
+
+    mediaRecorderRef.current.start();
+    timerIntervalRef.current = setInterval(() => {
+      setRecordingTime(prev => {
+        if (prev >= 29) {
+          handleStopRecording();
+        }
+        return prev + 1;
+      });
+    }, 1000);
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+  };
+  
+  const handleRetry = () => {
+    setVideoUrl(null);
+    setError(null);
+    setRecordingTime(0);
+  };
 
   return (
     <div className="space-y-4">
-       <div>
-        <h3 className="font-semibold text-lg font-headline">
-          Record Video Signature
-        </h3>
+      <div>
+        <h3 className="font-semibold text-lg font-headline">Record Video Signature</h3>
         <p className="text-muted-foreground text-sm">
-          Record a short video of yourself stating your agreement.
+          Record a short video (15-30 seconds) of yourself stating your agreement.
         </p>
       </div>
-      <div className="relative aspect-video w-full bg-black rounded-lg overflow-hidden">
-        <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-        {!hasCameraPermission && (
-             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4">
-                 <Video className="h-12 w-12 text-white/50" />
-                 <p className="mt-2 text-center">Camera access is required for video signatures.</p>
-             </div>
+      <div className="relative aspect-video w-full bg-black rounded-lg overflow-hidden border">
+        {videoUrl ? (
+          <video ref={playerRef} src={videoUrl} className="w-full h-full object-cover" controls />
+        ) : (
+          <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+        )}
+
+        {!hasCameraPermission && !videoUrl && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white p-4">
+            <VideoIcon className="h-12 w-12 text-white/50" />
+            <p className="mt-2 text-center">Camera access is required for video signatures.</p>
+          </div>
+        )}
+        
+        {isRecording && (
+          <div className="absolute top-2 right-2 flex items-center gap-2 bg-black/50 text-white px-2 py-1 rounded-md text-xs">
+            <Circle className="h-3 w-3 fill-red-500 text-red-500" />
+            <span>{String(Math.floor(recordingTime / 60)).padStart(2, '0')}:{String(recordingTime % 60).padStart(2, '0')}</span>
+          </div>
         )}
       </div>
-      
+
+      {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+
       {!hasCameraPermission && (
-          <Alert variant="destructive">
-              <AlertTitle>Camera Access Required</AlertTitle>
-              <AlertDescription>
-                Please allow camera access in your browser settings to use this feature. You may need to refresh the page after granting permission.
-              </AlertDescription>
-          </Alert>
+        <Alert variant="destructive">
+          <AlertTitle>Camera Access Required</AlertTitle>
+          <AlertDescription>
+            Please allow camera access in your browser settings to use this feature. You may need to refresh the page after granting permission.
+          </AlertDescription>
+        </Alert>
       )}
 
-      <div className="flex justify-center">
-        <Button size="lg" disabled={!hasCameraPermission} className="rounded-full h-16 w-16 p-0">
-          <div className="h-8 w-8 rounded-full bg-red-500 border-2 border-white"></div>
-        </Button>
+      <div className="flex justify-center items-center gap-4">
+        {videoUrl ? (
+          <>
+            <Button variant="outline" onClick={handleRetry}>
+              <RotateCcw className="mr-2" /> Record Again
+            </Button>
+            <Button>Use this video</Button>
+          </>
+        ) : (
+          <Button
+            size="lg"
+            disabled={!hasCameraPermission || isRecording}
+            onClick={isRecording ? handleStopRecording : handleStartRecording}
+            className={cn("rounded-full h-16 w-16 p-0", isRecording && 'bg-red-500 hover:bg-red-600')}
+          >
+            {isRecording ? <div className="h-6 w-6 rounded-sm bg-white"></div> : <VideoIcon className="h-8 w-8" />}
+          </Button>
+        )}
       </div>
     </div>
   );
 }
+
 
 function Step5({ agreement }: { agreement: Agreement }) {
   const handleDownload = () => {
@@ -943,7 +1033,7 @@ export function AgreementSigningFlow({
           </Button>
           <Button
             onClick={next}
-            disabled={isSubmitting || isVoiceOrVideoStep}
+            disabled={isSubmitting || (currentStep === 3 && (signatureMethod === 'voice' || signatureMethod === 'video'))}
             className="bg-accent hover:bg-accent/90 text-accent-foreground"
           >
             {currentStep === steps.length - 2 ? (
