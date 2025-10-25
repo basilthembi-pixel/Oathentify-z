@@ -94,7 +94,9 @@ const AgreementCard = ({ agreement }: { agreement: Agreement }) => {
                 <span>Loading...</span>
             )}
           </div>
-          <Button className="w-full mt-2" variant="outline">View Agreement</Button>
+           <Button className="w-full mt-2" variant="outline" asChild>
+            <Link href={`/agreements/${agreement.id}`}>View Agreement</Link>
+          </Button>
         </div>
       </CardContent>
     </Card>
