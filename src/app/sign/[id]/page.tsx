@@ -4,6 +4,7 @@ import { useParams, notFound } from 'next/navigation';
 import { DUMMY_AGREEMENTS } from '@/lib/data';
 import { AgreementSigningFlow } from '@/components/agreement-signing-flow';
 import { Logo } from '@/components/logo';
+import { ShieldCheck } from 'lucide-react';
 
 export default function SigningPage() {
   const params = useParams();
@@ -18,13 +19,24 @@ export default function SigningPage() {
   const recipient = agreement.parties.find(p => p.role === 'counter-party');
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-4">
-      <div className="w-full max-w-2xl">
-         <div className="flex justify-center mb-8">
-          <Logo />
-        </div>
+    <div className="flex min-h-screen flex-col items-center bg-secondary p-4">
+        <header className="w-full max-w-4xl mx-auto py-6">
+             <div className="flex justify-between items-center">
+                <Logo />
+                 <div className="hidden sm:flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        <span>End-to-end encrypted</span>
+                    </div>
+                 </div>
+            </div>
+        </header>
+      <main className="w-full max-w-2xl flex-grow">
         <AgreementSigningFlow agreement={agreement} recipient={recipient} />
-      </div>
+      </main>
+      <footer className="w-full max-w-4xl mx-auto py-4 text-center text-xs text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} Oathentify. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
