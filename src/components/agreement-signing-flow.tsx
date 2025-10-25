@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import {
   Card,
   CardContent,
@@ -52,7 +52,7 @@ function Step1({
   agreement: Agreement;
   recipient?: Party;
 }) {
-  const form = useForm<FormValues>();
+  const form = useFormContext<FormValues>();
   const creator = agreement.parties.find((p) => p.role === 'creator');
 
   return (
@@ -127,7 +127,7 @@ function Step2({ agreement }: { agreement: Agreement }) {
 }
 
 function Step3() {
-    const form = useForm<FormValues>();
+    const form = useFormContext<FormValues>();
 
     return (
         <div>
