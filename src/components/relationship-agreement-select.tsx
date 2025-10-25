@@ -79,8 +79,8 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
                     <CommandItem
                       key={type.value}
                       value={type.value}
-                      onSelect={(currentValue) => {
-                        onValueChange(currentValue === selectedValue ? "" : currentValue)
+                      onSelect={() => {
+                        onValueChange(type.value === selectedValue ? "" : type.value)
                         setOpen(false)
                       }}
                     >
