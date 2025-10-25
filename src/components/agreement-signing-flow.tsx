@@ -49,6 +49,7 @@ import {
   RotateCcw,
   Circle,
   VideoIcon,
+  KeyRound,
 } from 'lucide-react';
 import type { Agreement, Party } from '@/lib/types';
 import Link from 'next/link';
@@ -63,6 +64,7 @@ const step1Schema = z.object({
   email: z
     .string()
     .email('Please enter a valid email to confirm your identity.'),
+  otp: z.string().min(4, 'Please enter the 4-digit code.'),
 });
 
 const step3Schema = z.object({
@@ -135,6 +137,17 @@ function AgreementInfoSummary({ agreement }: { agreement: Agreement }) {
 function Step1({ agreement }: { agreement: Agreement }) {
   const form = useFormContext<FormValues>();
   const creator = agreement.parties.find((p) => p.role === 'creator');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const { toast } = useToast();
+
+  const handleSendCode = () => {
+    // In a real app, this would trigger an API call to send the OTP
+    setIsOtpSent(true);
+    toast({
+        title: "Verification Code Sent",
+        description: "A 4-digit code has been sent to your email.",
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -153,23 +166,47 @@ function Step1({ agreement }: { agreement: Agreement }) {
             </span>
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem className="text-left">
-                <FormLabel>Confirm Your Email to Continue</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter your email to continue..."
-                    {...field}
-                  />
-                </FormControl>
+                <FormLabel>Confirm Your Email</FormLabel>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input
+                      placeholder="Enter your email..."
+                      {...field}
+                      disabled={isOtpSent}
+                    />
+                  </FormControl>
+                  <Button type="button" variant="secondary" onClick={handleSendCode} disabled={isOtpSent || !form.formState.isValid}>
+                    Send Code
+                  </Button>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
+           {isOtpSent && (
+            <FormField
+              control={form.control}
+              name="otp"
+              render={({ field }) => (
+                <FormItem className="text-left">
+                  <FormLabel>4-Digit Verification Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter the code from your email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -487,6 +524,7 @@ function VideoSignatureStep() {
   const playerRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -496,13 +534,12 @@ function VideoSignatureStep() {
   const { toast } = useToast();
 
   useEffect(() => {
-    let stream: MediaStream | null = null;
     const getCameraPermission = async () => {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        streamRef.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         setHasCameraPermission(true);
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject = streamRef.current;
         }
       } catch (err) {
         console.error('Error accessing camera:', err);
@@ -518,8 +555,8 @@ function VideoSignatureStep() {
     getCameraPermission();
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
@@ -624,7 +661,7 @@ function VideoSignatureStep() {
         {videoUrl ? (
           <>
             <Button variant="outline" onClick={handleRetry}>
-              <RotateCcw className="mr-2" /> Record Again
+              <RotateCcw className="mr-2 h-4 w-4" /> Record Again
             </Button>
             <Button>Use this video</Button>
           </>
@@ -865,7 +902,7 @@ export function ExpiredAgreement({ agreement }: { agreement: Agreement }) {
 
 
 const steps = [
-  { id: 'Step 1', name: 'Verify', schema: step1Schema, icon: UserCheck },
+  { id: 'Step 1', name: 'Verify', schema: step1Schema, icon: KeyRound },
   { id: 'Step 2', name: 'Review', icon: FileText },
   { id: 'Step 3', name: 'Method', schema: step3Schema, icon: FileSignature },
   { id: 'Step 4', name: 'Sign', schema: textSignatureSchema, icon: Pen },
@@ -886,6 +923,7 @@ export function AgreementSigningFlow({
     resolver: zodResolver(steps[currentStep].schema || z.object({})),
     defaultValues: {
       email: recipient?.email || '',
+      otp: '',
       signatureMethod: 'text',
       signature: '',
       agreedToTerms: false,
@@ -1029,7 +1067,7 @@ export function AgreementSigningFlow({
       <div className="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-sm p-4 border-t md:static md:bg-transparent md:p-0 md:border-none">
         <div className="flex justify-between w-full max-w-2xl mx-auto">
           <Button onClick={prev} variant="outline" disabled={currentStep === 0}>
-            <ChevronLeft /> Back
+            <ChevronLeft className="mr-2 h-4 w-4" /> Back
           </Button>
           <Button
             onClick={next}
