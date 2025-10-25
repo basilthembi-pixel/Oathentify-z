@@ -7,12 +7,14 @@ interface SuggestTermsState {
   error?: string;
 }
 
+interface SuggestTermsInput {
+  agreementType: string;
+}
+
 export async function suggestTermsAction(
-  prevState: SuggestTermsState,
+  input: SuggestTermsInput
 ): Promise<SuggestTermsState> {
-  // This function is now simplified as we handle form data in the component.
-  // It expects the agreementType to be passed in the prevState object.
-  const { agreementType } = prevState as { agreementType: string };
+  const { agreementType } = input;
 
   if (!agreementType) {
     return { error: 'Agreement type is required to suggest terms.' };
@@ -24,8 +26,8 @@ export async function suggestTermsAction(
       return { suggestedTerms: result.suggestedTerms };
     }
     return { error: 'Could not generate suggestions. Please try again.' };
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    return { error: 'An unexpected error occurred while generating suggestions.' };
+    return { error: e.message || 'An unexpected error occurred while generating suggestions.' };
   }
 }
