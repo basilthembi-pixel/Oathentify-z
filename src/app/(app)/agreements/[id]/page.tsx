@@ -21,8 +21,10 @@ import {
   FileSignature,
   Calendar,
   ChevronLeft,
+  Link as LinkIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const statusStyles: { [key: string]: string } = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-700',
@@ -63,10 +65,16 @@ export default function AgreementDetailPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
              <Button variant="outline" onClick={() => router.back()} className="gap-2">
                 <ChevronLeft />
                 Back to Dashboard
+            </Button>
+            <Button variant="outline" asChild>
+                <Link href={`/sign/${agreement.id}`} target="_blank">
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    View Signing Page
+                </Link>
             </Button>
         </div>
       <Card>
@@ -120,8 +128,8 @@ export default function AgreementDetailPage() {
                     </div>
                 </section>
                 {agreement.status === 'pending' && (
-                     <Button className="w-full">
-                        Sign Agreement
+                     <Button className="w-full" asChild>
+                        <Link href={`/sign/${agreement.id}`}>Sign Agreement</Link>
                     </Button>
                 )}
             </div>
