@@ -19,7 +19,7 @@ export default function SigningPage() {
   const recipient = agreement.parties.find(p => p.role === 'counter-party');
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-secondary p-4">
+    <div className="flex min-h-screen flex-col items-center bg-secondary p-4 md:p-8">
         <header className="w-full max-w-4xl mx-auto py-6">
              <div className="flex justify-between items-center">
                 <Logo />
@@ -36,6 +36,7 @@ export default function SigningPage() {
       </main>
       <footer className="w-full max-w-4xl mx-auto py-4 text-center text-xs text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Oathentify. All rights reserved.</p>
+        <p className="mt-1">Your signature will be legally binding under the ESIGN Act.</p>
       </footer>
     </div>
   );
