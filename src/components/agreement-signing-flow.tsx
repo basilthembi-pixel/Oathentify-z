@@ -10,7 +10,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,116 +29,130 @@ import {
   FileSignature,
   FileText,
   Loader2,
+  Mic,
   PartyPopper,
+  Pen,
   UserCheck,
-  Calendar,
-  ShieldCheck,
-  Badge,
+  Video,
 } from 'lucide-react';
 import type { Agreement, Party } from '@/lib/types';
 import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback } from './ui/avatar';
 import { Badge as UiBadge } from './ui/badge';
+import { cn } from '@/lib/utils';
 
 const step1Schema = z.object({
-  email: z.string().email('Please enter a valid email to confirm your identity.'),
+  email: z
+    .string()
+    .email('Please enter a valid email to confirm your identity.'),
 });
 
 const step3Schema = z.object({
+    signatureMethod: z.enum(['text', 'voice', 'video'], {
+        required_error: "Please select a signature method."
+    }),
+});
+
+const step4Schema = z.object({
   signature: z.string().min(2, 'Please type your full name to sign.'),
 });
 
-type FormValues = z.infer<typeof step1Schema> & z.infer<typeof step3Schema>;
+
+type FormValues = z.infer<typeof step1Schema> & z.infer<typeof step3Schema> & z.infer<typeof step4Schema>;
 
 const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-}
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
 
 function AgreementInfoSummary({ agreement }: { agreement: Agreement }) {
-    const creator = agreement.parties.find((p) => p.role === 'creator');
-    
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-lg font-headline">Agreement Details</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-4">
-                <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Created by</span>
-                     <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                            <AvatarFallback>{creator?.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">{creator?.name}</span>
-                    </div>
-                </div>
-                 <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Created on</span>
-                    <span className="font-medium">{formatDate(agreement.createdAt)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Agreement type</span>
-                    <UiBadge variant="secondary">{agreement.type}</UiBadge>
-                </div>
-                 <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Status</span>
-                    <UiBadge variant="outline" className="bg-yellow-100 text-yellow-800">⏳ Awaiting Your Signature</UiBadge>
-                </div>
-            </CardContent>
-        </Card>
-    )
+  const creator = agreement.parties.find((p) => p.role === 'creator');
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-headline">
+          Agreement Details
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Created by</span>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-6 w-6">
+              <AvatarFallback>{creator?.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <span className="font-medium">{creator?.name}</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Created on</span>
+          <span className="font-medium">{formatDate(agreement.createdAt)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Agreement type</span>
+          <UiBadge variant="secondary">{agreement.type}</UiBadge>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Status</span>
+          <UiBadge
+            variant="outline"
+            className="bg-yellow-100 text-yellow-800"
+          >
+            ⏳ Awaiting Your Signature
+          </UiBadge>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 function Step1({
   agreement,
-  recipient,
 }: {
   agreement: Agreement;
-  recipient?: Party;
 }) {
   const form = useFormContext<FormValues>();
   const creator = agreement.parties.find((p) => p.role === 'creator');
 
   return (
     <div className="space-y-6">
-        <Card className="text-center">
-             <CardHeader>
-                <div className="mx-auto bg-primary/10 text-primary h-12 w-12 flex items-center justify-center rounded-full">
-                    <UserCheck className="h-6 w-6" />
-                </div>
-                <CardTitle className="font-headline text-2xl pt-2">
-                     You&apos;re Invited to Sign
-                </CardTitle>
-                <CardDescription>
-                    {creator?.name} has invited you to sign the agreement: <br />
-                    <span className="font-semibold text-foreground">{agreement.title}</span>
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                    <FormItem className="text-left">
-                    <FormLabel>Confirm Your Email to Continue</FormLabel>
-                    <FormControl>
-                        <Input
-                        placeholder="Enter your email to continue..."
-                        {...field}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            </CardContent>
-        </Card>
-        
-        <AgreementInfoSummary agreement={agreement} />
+      <Card className="text-center">
+        <CardHeader>
+          <div className="mx-auto bg-primary/10 text-primary h-12 w-12 flex items-center justify-center rounded-full">
+            <UserCheck className="h-6 w-6" />
+          </div>
+          <CardTitle className="font-headline text-2xl pt-2">
+            You&apos;re Invited to Sign
+          </CardTitle>
+          <CardDescription>
+            {creator?.name} has invited you to sign the agreement: <br />
+            <span className="font-semibold text-foreground">
+              {agreement.title}
+            </span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="text-left">
+                <FormLabel>Confirm Your Email to Continue</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email to continue..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+      </Card>
+
+      <AgreementInfoSummary agreement={agreement} />
     </div>
   );
 }
@@ -179,31 +192,102 @@ function Step2({ agreement }: { agreement: Agreement }) {
   );
 }
 
+const signatureMethods = [
+  {
+    name: 'text',
+    title: 'Type Your Signature',
+    description: 'Quick and simple',
+    icon: Pen,
+    badge: 'FREE',
+  },
+  {
+    name: 'voice',
+    title: 'Voice Signature',
+    description: 'Record a verbal agreement',
+    icon: Mic,
+    badge: 'PREMIUM',
+  },
+  {
+    name: 'video',
+    title: 'Video Signature',
+    description: 'Record a video confirmation',
+    icon: Video,
+    badge: 'PREMIUM',
+  },
+];
+
 function Step3() {
     const form = useFormContext<FormValues>();
+    const selectedMethod = form.watch('signatureMethod');
 
     return (
         <div>
-             <h3 className="font-semibold text-lg font-headline">Provide Signature</h3>
-             <p className="text-muted-foreground text-sm mb-4">Please type your full name in the box below to electronically sign this agreement. This is a legally binding signature.</p>
-             <FormField
+            <h3 className="font-semibold text-lg font-headline">Choose How to Sign</h3>
+            <p className="text-muted-foreground text-sm mb-4">Select your preferred signing method from the options below.</p>
+            <FormField
                 control={form.control}
-                name="signature"
+                name="signatureMethod"
                 render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Your Full Name</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Type your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+                <FormItem className="space-y-4">
+                    <FormControl>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {signatureMethods.map((method) => (
+                            <div
+                                key={method.name}
+                                onClick={() => field.onChange(method.name)}
+                                className={cn(
+                                "border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md hover:-translate-y-1",
+                                selectedMethod === method.name
+                                    ? "border-primary ring-2 ring-primary/50"
+                                    : "border-border"
+                                )}
+                            >
+                                <div className="flex justify-between items-center mb-2">
+                                <method.icon className="h-8 w-8 text-primary" />
+                                 <UiBadge variant={method.badge === 'FREE' ? 'secondary' : 'default'}>{method.badge}</UiBadge>
+                                </div>
+                                <h4 className="font-semibold">{method.title}</h4>
+                                <p className="text-xs text-muted-foreground">{method.description}</p>
+                            </div>
+                            ))}
+                        </div>
+                    </FormControl>
+                    <FormMessage className="text-center" />
+                </FormItem>
                 )}
-                />
+            />
         </div>
-    )
+    );
 }
 
 function Step4() {
+  const form = useFormContext<FormValues>();
+
+  return (
+    <div>
+      <h3 className="font-semibold text-lg font-headline">Provide Signature</h3>
+      <p className="text-muted-foreground text-sm mb-4">
+        Please type your full name in the box below to electronically sign this
+        agreement. This is a legally binding signature.
+      </p>
+      <FormField
+        control={form.control}
+        name="signature"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Your Full Name</FormLabel>
+            <FormControl>
+              <Input placeholder="Type your full name" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+}
+
+function Step5() {
   return (
     <div className="text-center py-10">
       <PartyPopper className="mx-auto h-16 w-16 text-green-500" />
@@ -214,8 +298,13 @@ function Step4() {
         Thank you! A confirmation has been sent to all parties.
       </p>
       <div className="mt-8 border-t pt-6">
-        <h3 className="font-semibold text-foreground">Want to manage your agreements?</h3>
-        <p className="text-sm text-muted-foreground mt-1 mb-4">Create a free Oathentify account to store, track, and manage all your agreements in one place.</p>
+        <h3 className="font-semibold text-foreground">
+          Want to manage your agreements?
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">
+          Create a free Oathentify account to store, track, and manage all your
+          agreements in one place.
+        </p>
         <Button asChild>
           <Link href="/signup">Create a Free Account</Link>
         </Button>
@@ -227,8 +316,9 @@ function Step4() {
 const steps = [
   { id: 'Step 1', name: 'Verify', schema: step1Schema, icon: UserCheck },
   { id: 'Step 2', name: 'Review', icon: FileText },
-  { id: 'Step 3', name: 'Sign', schema: step3Schema, icon: FileSignature },
-  { id: 'Step 4', name: 'Complete', icon: PartyPopper },
+  { id: 'Step 3', name: 'Method', schema: step3Schema, icon: FileSignature },
+  { id: 'Step 4', name: 'Sign', schema: step4Schema, icon: FileSignature },
+  { id: 'Step 5', name: 'Complete', icon: PartyPopper },
 ];
 
 export function AgreementSigningFlow({
@@ -245,8 +335,10 @@ export function AgreementSigningFlow({
     resolver: zodResolver(steps[currentStep].schema || z.object({})),
     defaultValues: {
       email: recipient?.email || '',
+      signatureMethod: 'text',
       signature: '',
     },
+    mode: 'onChange',
   });
 
   const { trigger } = methods;
@@ -254,16 +346,18 @@ export function AgreementSigningFlow({
   const next = async () => {
     const currentSchema = steps[currentStep].schema;
     if (currentSchema) {
-      const output = await trigger(Object.keys(currentSchema.shape) as (keyof FormValues)[], { shouldFocus: true });
+      const fieldsToValidate = Object.keys(currentSchema.shape) as (keyof FormValues)[];
+      const output = await trigger(fieldsToValidate, { shouldFocus: true });
       if (!output) return;
     }
 
+
     if (currentStep < steps.length - 1) {
-       if (currentStep === steps.length - 2) {
+      if (currentStep === steps.length - 2) {
         setIsSubmitting(true);
         setTimeout(() => {
           setIsSubmitting(false);
-          setCurrentStep(step => step + 1);
+          setCurrentStep((step) => step + 1);
         }, 1500);
       } else {
         setCurrentStep((step) => step + 1);
@@ -276,68 +370,97 @@ export function AgreementSigningFlow({
       setCurrentStep((step) => step - 1);
     }
   };
-  
-  const progress = useMemo(() => ((currentStep + 1) / (steps.length)) * 100, [currentStep]);
 
-  if (currentStep === steps.length -1) {
-      return (
-        <Card className="overflow-hidden shadow-lg">
-            <CardContent className="p-8">
-                <Step4 />
-            </CardContent>
-        </Card>
-      )
+  const progress = useMemo(
+    () => ((currentStep + 1) / steps.length) * 100,
+    [currentStep]
+  );
+
+  if (currentStep === steps.length - 1) {
+    return (
+      <Card className="overflow-hidden shadow-lg">
+        <CardContent className="p-8">
+          <Step5 />
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
     <div className="space-y-6">
-        <div>
-            <Progress value={progress} className="h-1" />
-            <div className="mt-2 grid grid-cols-4 text-xs sm:text-sm">
-                {steps.map((step, index) => (
-                    <div key={step.id} className={`flex items-center justify-center gap-2 py-2 px-1 text-center ${index === currentStep ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
-                        <step.icon className="h-4 w-4 hidden sm:block" />
-                        <span>{step.name}</span>
-                    </div>
-                ))}
+      <div>
+        <Progress value={progress} className="h-1" />
+        <div className="mt-2 grid grid-cols-5 text-xs sm:text-sm">
+          {steps.map((step, index) => (
+            <div
+              key={step.id}
+              className={`flex items-center justify-center gap-2 py-2 px-1 text-center ${
+                index === currentStep
+                  ? 'font-semibold text-primary'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              <step.icon className="h-4 w-4 hidden sm:block" />
+              <span>{step.name}</span>
             </div>
+          ))}
         </div>
+      </div>
 
-        <FormProvider {...methods}>
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-            {currentStep === 0 && <Step1 agreement={agreement} recipient={recipient} />}
-            {currentStep === 1 && 
-                <Card><CardContent className="p-6"><Step2 agreement={agreement} /></CardContent></Card>
-            }
-            {currentStep === 2 && 
-                 <Card><CardContent className="p-6"><Step3 /></CardContent></Card>
-            }
-          </form>
-        </FormProvider>
-        
-        <div className="flex justify-between pt-4">
-            <Button onClick={prev} variant="outline" disabled={currentStep === 0}>
-                <ChevronLeft /> Back
-            </Button>
-            <Button onClick={next} disabled={isSubmitting} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            {currentStep === steps.length - 2 ? (
-                isSubmitting ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing...
-                </>
-                ) : (
-                    <>
-                        Sign & Complete <FileSignature className="ml-2" />
-                    </>
-                )
+      <FormProvider {...methods}>
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+          {currentStep === 0 && <Step1 agreement={agreement} />}
+          {currentStep === 1 && (
+            <Card>
+              <CardContent className="p-6">
+                <Step2 agreement={agreement} />
+              </CardContent>
+            </Card>
+          )}
+          {currentStep === 2 && (
+             <Card>
+                <CardContent className="p-6">
+                    <Step3 />
+                </CardContent>
+            </Card>
+          )}
+          {currentStep === 3 && (
+            <Card>
+              <CardContent className="p-6">
+                <Step4 />
+              </CardContent>
+            </Card>
+          )}
+        </form>
+      </FormProvider>
+
+      <div className="flex justify-between pt-4">
+        <Button onClick={prev} variant="outline" disabled={currentStep === 0}>
+          <ChevronLeft /> Back
+        </Button>
+        <Button
+          onClick={next}
+          disabled={isSubmitting}
+          className="bg-accent hover:bg-accent/90 text-accent-foreground"
+        >
+          {currentStep === steps.length - 2 ? (
+            isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing...
+              </>
             ) : (
-                <>
-                 {currentStep === 0 ? "Verify & Continue" : "Next"}
-                 <ChevronRight className="ml-2" />
-                </>
-            )}
-            </Button>
-        </div>
+              <>
+                Sign & Complete <FileSignature className="ml-2" />
+              </>
+            )
+          ) : (
+            <>
+              {currentStep === 0 ? 'Verify & Continue' : 'Next'}
+              <ChevronRight className="ml-2" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
