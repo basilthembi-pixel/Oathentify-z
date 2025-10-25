@@ -86,6 +86,62 @@ export const DUMMY_AGREEMENTS: Agreement[] = [
     updatedAt: '2024-07-22T08:00:00Z',
     mode: 'casual',
   },
+  {
+    id: 'agr-7',
+    title: 'Our Moving In Together Pact',
+    description: 'We agree to split rent 50/50. John will handle utilities, and Sarah will handle groceries. We will alternate cleaning the kitchen and bathroom weekly. This is our exciting first step together!',
+    type: 'Living Together',
+    status: 'pending',
+    parties: [
+      { uid: 'user-1', name: 'Sarah', email: 'sarah@example.com', role: 'creator', status: 'signed' },
+      { uid: 'user-2', name: 'John', email: 'john@example.com', role: 'counter-party', status: 'pending' },
+    ],
+    createdAt: '2024-07-25T18:00:00Z',
+    updatedAt: '2024-07-25T18:00:00Z',
+    mode: 'relationship',
+  },
+  {
+    id: 'agr-8',
+    title: 'Financial Goals for 2024',
+    description: 'We commit to saving $500 each month for our vacation fund. We will have monthly check-ins on the 1st to review our budget and progress towards our shared goals.',
+    type: 'Money & Finances',
+    status: 'executed',
+    parties: [
+      { uid: 'user-1', name: 'Sarah', email: 'sarah@example.com', role: 'creator', status: 'signed' },
+      { uid: 'user-2', name: 'John', email: 'john@example.com', role: 'counter-party', status: 'signed' },
+    ],
+    createdAt: '2024-01-01T10:00:00Z',
+    updatedAt: '2024-01-01T11:00:00Z',
+    mode: 'relationship',
+  },
+  {
+    id: 'agr-9',
+    title: 'Social Media Boundaries',
+    description: 'We agree to ask for consent before posting photos of each other on social media. We will maintain a united and positive front online, and discuss any concerns privately.',
+    type: 'Social Life & Boundaries',
+    status: 'partial',
+    parties: [
+      { uid: 'user-1', name: 'Sarah', email: 'sarah@example.com', role: 'creator', status: 'signed' },
+      { uid: 'user-2', name: 'John', email: 'john@example.com', role: 'counter-party', status: 'pending' },
+    ],
+    createdAt: '2024-05-10T15:00:00Z',
+    updatedAt: '2024-05-10T15:00:00Z',
+    mode: 'relationship',
+  },
+  {
+    id: 'agr-10',
+    title: 'Old Holiday Plans 2023',
+    description: 'This was our agreement for splitting holidays in 2023. We agreed to spend Thanksgiving with one family and Christmas with the other. This has now expired and needs a new version for 2024.',
+    type: 'Family & In-Laws',
+    status: 'expired',
+    parties: [
+      { uid: 'user-1', name: 'Sarah', email: 'sarah@example.com', role: 'creator', status: 'signed' },
+      { uid: 'user-2', name: 'John', email: 'john@example.com', role: 'counter-party', status: 'signed' },
+    ],
+    createdAt: '2023-11-01T12:00:00Z',
+    updatedAt: '2023-12-31T23:59:59Z',
+    mode: 'relationship',
+  }
 ];
 
 export const AGREEMENT_TYPES = [
