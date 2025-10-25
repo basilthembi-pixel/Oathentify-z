@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition } from 'react';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
@@ -609,7 +609,7 @@ export function AgreementSigningFlow({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-6">
       <div>
         <Progress value={progress} className="h-1" />
         <div className="mt-2 grid grid-cols-5 text-xs sm:text-sm">
@@ -658,32 +658,34 @@ export function AgreementSigningFlow({
         </form>
       </FormProvider>
 
-      <div className="flex justify-between pt-4">
-        <Button onClick={prev} variant="outline" disabled={currentStep === 0}>
-          <ChevronLeft /> Back
-        </Button>
-        <Button
-          onClick={next}
-          disabled={isSubmitting || (currentStep === 3 && signatureMethod !== 'text')} // Disable for non-text methods for now
-          className="bg-accent hover:bg-accent/90 text-accent-foreground"
-        >
-          {currentStep === steps.length - 2 ? (
-            isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing...
-              </>
+      <div className="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-sm p-4 border-t md:static md:bg-transparent md:p-0 md:border-none">
+        <div className="flex justify-between w-full max-w-2xl mx-auto">
+          <Button onClick={prev} variant="outline" disabled={currentStep === 0}>
+            <ChevronLeft /> Back
+          </Button>
+          <Button
+            onClick={next}
+            disabled={isSubmitting || (currentStep === 3 && signatureMethod !== 'text')} // Disable for non-text methods for now
+            className="bg-accent hover:bg-accent/90 text-accent-foreground"
+          >
+            {currentStep === steps.length - 2 ? (
+              isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing...
+                </>
+              ) : (
+                <>
+                  Sign & Complete <FileSignature className="ml-2" />
+                </>
+              )
             ) : (
               <>
-                Sign & Complete <FileSignature className="ml-2" />
+                {currentStep === 0 ? 'Verify & Continue' : 'Next'}
+                <ChevronRight className="ml-2" />
               </>
-            )
-          ) : (
-            <>
-              {currentStep === 0 ? 'Verify & Continue' : 'Next'}
-              <ChevronRight className="ml-2" />
-            </>
-          )}
-        </Button>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
