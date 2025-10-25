@@ -23,16 +23,16 @@ export function ModeToggle() {
           Corporate
         </button>
         <button
-          onClick={() => setMode('personal')}
+          onClick={() => setMode('casual')}
           className={cn(
             'px-3 py-1 rounded-md text-sm font-medium transition flex items-center gap-2',
-            mode === 'personal'
+            mode === 'casual'
               ? 'bg-background shadow text-foreground'
               : 'text-muted-foreground hover:text-foreground'
           )}
         >
           <Heart className="w-4 h-4" />
-          Personal
+          Casual
         </button>
       </div>
     </div>

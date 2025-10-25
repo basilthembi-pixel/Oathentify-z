@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Mode = 'corporate' | 'personal';
+type Mode = 'corporate' | 'casual';
 
 interface ModeContextType {
   mode: Mode;
@@ -16,7 +16,7 @@ export function ModeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedMode = localStorage.getItem('oathentify_mode') as Mode | null;
-    if (storedMode && (storedMode === 'corporate' || storedMode === 'personal')) {
+    if (storedMode && (storedMode === 'corporate' || storedMode === 'casual')) {
       setMode(storedMode);
     }
   }, []);

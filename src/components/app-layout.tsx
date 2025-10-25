@@ -41,7 +41,6 @@ import { Logo } from './logo';
 import { Separator } from './ui/separator';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { ModeToggle } from './mode-toggle';
 
 function Header({ pageTitle }: { pageTitle: string }) {
   const { toggleSidebar } = useSidebar();
@@ -56,7 +55,6 @@ function Header({ pageTitle }: { pageTitle: string }) {
       </button>
       <h1 className="flex-1 text-xl font-semibold font-headline tracking-tight">{pageTitle}</h1>
       <div className="flex items-center gap-4">
-        <ModeToggle />
         <UserMenu />
       </div>
     </header>
