@@ -45,6 +45,7 @@ import { AgreementShare } from '@/components/agreement-share';
 import { useMode } from '@/context/mode-provider';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { RelationshipAgreementSelect } from '@/components/relationship-agreement-select';
 
 const step0Schema = z.object({
   // No validation needed for this step, it's just a selection
@@ -161,6 +162,33 @@ function Step0() {
     );
 }
 
+const relationshipAgreementTypes = [
+    {
+        category: "Foundation",
+        types: [
+            { value: "Living Together", label: "🏠 Living Together", description: "Making home life smooth & happy" },
+            { value: "Money & Finances", label: "💰 Money & Finances", description: "Keep money talks healthy & clear" },
+            { value: "Future Goals & Dreams", label: "🎯 Future Goals & Dreams", description: "Align on marriage, kids, and life" },
+            { value: "Communication & Conflict", label: "🗣️ Communication & Conflict", description: "Fight fair, love better" },
+            { value: "Social Life & Boundaries", label: "👥 Social Life & Boundaries", description: "Friends, family, and personal space" },
+            { value: "Intimacy & Connection", label: "💑 Intimacy & Connection", description: "Physical and emotional closeness" },
+            { value: "Family & In-Laws", label: "👨‍👩‍👧 Family & In-Laws", description: "Navigate family life together" },
+            { value: "Personal Growth", label: "📈 Personal Growth", description: "Support each other's dreams" },
+        ],
+    },
+    {
+        category: "Protective",
+        types: [
+            { value: "Trust & Infidelity Boundaries", label: "💔 Trust & Infidelity Boundaries", description: "Serious - discuss openly first" },
+            { value: "If We Ever Part Ways", label: "📦 If We Ever Part Ways", description: "Hope for the best, plan for clarity" },
+            { value: "Debt & Financial Protection", label: "💳 Debt & Financial Protection", description: "Keep individual finances separate" },
+            { value: "Health & Crisis Support", label: "🏥 Health & Crisis Support", description: "Be there when it matters most" },
+            { value: "If Distance Happens", label: "✈️ If Distance Happens", description: "Making long-distance work" },
+            { value: "Safety & Emergency Exit", label: "🚪 Safety & Emergency Exit", description: "Protection if things go wrong" },
+        ],
+    },
+];
+
 function Step1() {
   const form = useFormContext<FormValues>();
   const { toast } = useToast();
@@ -200,6 +228,42 @@ function Step1() {
     });
   };
 
+  const getLabel = () => {
+    if (mode === 'relationship') return "What are you building together? 💭";
+    if (mode === 'casual') return "Give your promise a name ✨";
+    return "Agreement Title";
+  };
+  
+  const getPlaceholder = () => {
+    if (mode === 'relationship') return "e.g., Our First Home Together 🏡";
+    if (mode === 'casual') return "e.g., Pizza Friday Fund";
+    return "e.g., Freelance Work Contract";
+  };
+  
+  const getDescription = () => {
+    if (mode === 'relationship') return "Give this agreement a name that feels right for both of you.";
+    if (mode === 'casual') return undefined;
+    return undefined;
+  };
+  
+  const getAgreementTypeLabel = () => {
+    if (mode === 'relationship') return "What area of your relationship? 💕";
+    if (mode === 'casual') return "What kind of promise is this? 🎯";
+    return "Agreement Type";
+  };
+  
+  const getTermsLabel = () => {
+    if (mode === 'relationship') return "Describe your commitment 📝";
+    if (mode === 'casual') return "What are we agreeing to? 📝";
+    return "Terms & Description";
+  };
+  
+  const getTermsPlaceholder = () => {
+    if (mode === 'relationship') return "Be specific and warm. e.g., 'We commit to having a date night, just the two of us, every Friday.'";
+    if (mode === 'casual') return "Be specific! e.g., I'll pay back $50 by next Friday.";
+    return "Describe the terms of the agreement...";
+  };
+
   return (
     <div className="space-y-6">
       <FormField
@@ -207,10 +271,11 @@ function Step1() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{mode === 'casual' ? 'Give your promise a name ✨' : 'Agreement Title'}</FormLabel>
+            <FormLabel>{getLabel()}</FormLabel>
             <FormControl>
-              <Input placeholder={mode === 'casual' ? "e.g., Pizza Friday Fund" : "e.g., Freelance Work Contract"} {...field} />
+              <Input placeholder={getPlaceholder()} {...field} />
             </FormControl>
+             {getDescription() && <FormDescription>{getDescription()}</FormDescription>}
             <FormMessage />
           </FormItem>
         )}
@@ -220,22 +285,30 @@ function Step1() {
         name="agreementType"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{mode === 'casual' ? 'What kind of promise is this? 🎯' : 'Agreement Type'}</FormLabel>
+            <FormLabel>{getAgreementTypeLabel()}</FormLabel>
             <div className="flex gap-2">
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                    {agreementTypeList.map((type) => (
-                        <SelectItem key={type} value={type}>
-                        {type}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
+                {mode === 'relationship' ? (
+                   <RelationshipAgreementSelect
+                        selectedValue={field.value}
+                        onValueChange={field.onChange}
+                    />
+                ) : (
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {agreementTypeList.map((type) => (
+                            <SelectItem key={type} value={type}>
+                            {type}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                )}
+
                 <Button type="button" variant="outline" onClick={handleSuggestTerms} disabled={!form.watch('agreementType') || isPending}>
                     {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
                     Suggest Terms
@@ -250,10 +323,10 @@ function Step1() {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{mode === 'casual' ? "What are we agreeing to? 📝" : "Terms & Description"}</FormLabel>
+            <FormLabel>{getTermsLabel()}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder={mode === 'casual' ? "Be specific! e.g., I'll pay back $50 by next Friday." : "Describe the terms of the agreement..."}
+                placeholder={getTermsPlaceholder()}
                 className="min-h-[200px]"
                 {...field}
               />
@@ -419,6 +492,12 @@ export default function NewAgreementPage() {
   
   const progress = (currentStep / (steps.length - 1)) * 100;
   
+  const getTitle = () => {
+    if (mode === 'relationship') return "Create a Promise Together 💕";
+    if (mode === 'casual') return "Make a New Promise";
+    return "Create New Agreement";
+  };
+  
   if (currentStep === steps.length -1) {
     return (
       <div className="container mx-auto p-4 md:p-8 max-w-4xl">
@@ -435,7 +514,7 @@ export default function NewAgreementPage() {
     <div className="container mx-auto p-4 md:p-8 max-w-4xl">
       <Card className="overflow-hidden">
         <CardHeader className="bg-muted/50 p-6 border-b">
-          <CardTitle className="font-headline text-2xl">{mode === 'casual' ? 'Make a New Promise' : 'Create New Agreement'}</CardTitle>
+          <CardTitle className="font-headline text-2xl">{getTitle()}</CardTitle>
           {currentStep > 0 && (
             <div className="pt-4">
                 <Progress value={progress} className="h-2"/>
