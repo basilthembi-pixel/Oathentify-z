@@ -63,7 +63,7 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {selectedLabel}
+          <span className="truncate">{selectedLabel}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -78,13 +78,12 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
                   {group.types.map((type) => (
                     <CommandItem
                       key={type.value}
-                      value={type.value}
                       onSelect={() => {
                         onValueChange(type.value === selectedValue ? "" : type.value)
                         setOpen(false)
                       }}
                     >
-                      <div className="flex flex-col">
+                      <div className="flex flex-col w-full">
                         <div className="flex items-center">
                             <Check
                                 className={cn(
@@ -94,7 +93,7 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
                             />
                             <span>{type.label}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground ml-6">{type.description}</span>
+                        <span className="text-xs text-muted-foreground ml-6 truncate">{type.description}</span>
                       </div>
                     </CommandItem>
                   ))}
