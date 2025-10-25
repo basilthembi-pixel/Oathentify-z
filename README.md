@@ -1,6 +1,6 @@
 # Oathentify
 
-Oathentify is a modern platform for creating, signing, and managing legally-binding digital agreements with confidence. Built with Next.js and Firebase, it offers a fast, simple, and secure experience.
+Oathentify is a modern platform for creating, signing, and managing legally-binding digital agreements with confidence. Built with Next.js and Firebase, it offers a fast, simple, and secure experience with distinct modes for corporate, casual, and relationship agreements.
 
 ## About The Project
 
@@ -8,6 +8,10 @@ In today's digital world, a reliable method for creating and authenticating agre
 
 ## Key Features
 
+- **Multi-Modal Agreements**: Tailored experiences for different contexts:
+    - **Corporate Mode**: For business, freelance, and other professional or legally-focused agreements.
+    - **Casual Mode**: For everyday commitments between friends, family, and roommates.
+    - **Relationship Mode**: A sensitive, thoughtful space for couples to create commitments that strengthen their bond.
 - **User Authentication**: Secure sign-up and login with Google or Email/Password, powered by Firebase Authentication.
 - **Agreement Dashboard**: View and manage all your agreements in one place with filtering capabilities.
 - **Multi-Step Agreement Creation**: An intuitive, step-by-step process to create new agreements.
@@ -38,7 +42,7 @@ This project is set up to run in Firebase Studio.
     This will start the Next.js development server, typically on `http://localhost:9002`.
 
 3.  **Run the Genkit Development Server**:
-    For the AI features to work, you also need to run the Genkit server.
+    For the AI features to work, you also need to run the Genkit server in a separate terminal.
     ```bash
     npm run genkit:dev
     ```
