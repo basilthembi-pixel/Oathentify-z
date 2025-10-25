@@ -35,7 +35,6 @@ import {
   LogOut,
   PlusCircle,
   Settings,
-  Share2,
   User,
 } from 'lucide-react';
 import { Logo } from './logo';
@@ -118,7 +117,6 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/new', label: 'New Agreement', icon: PlusCircle },
   { href: '/templates', label: 'Templates', icon: FileText },
-  { href: '/share', label: 'Share', icon: Share2 },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {

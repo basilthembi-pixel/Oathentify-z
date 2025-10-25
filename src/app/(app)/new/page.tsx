@@ -38,6 +38,7 @@ import { Progress } from '@/components/ui/progress';
 import { AGREEMENT_TYPES } from '@/lib/data';
 import { suggestTermsAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
+import { AgreementShare } from '@/components/agreement-share';
 
 const step1Schema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters.'),
@@ -195,9 +196,10 @@ function Step2() {
 function Step3({ getValues }: { getValues: () => FormValues }) {
   const values = getValues();
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <div>
         <h3 className="text-lg font-semibold font-headline">Review Your Agreement</h3>
-        <div className="space-y-4 rounded-lg border p-4">
+        <div className="space-y-4 rounded-lg border p-4 mt-2">
             <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Title</p>
                 <p className="font-semibold">{values.title}</p>
@@ -215,6 +217,13 @@ function Step3({ getValues }: { getValues: () => FormValues }) {
                 <p className="text-sm whitespace-pre-wrap bg-secondary p-3 rounded-md">{values.description}</p>
             </div>
         </div>
+      </div>
+      <div>
+        <h3 className="text-lg font-semibold font-headline">Share & Send</h3>
+         <div className="mt-2">
+            <AgreementShare />
+         </div>
+      </div>
     </div>
   );
 }
@@ -227,9 +236,9 @@ function Step4() {
             <p className="mt-2 text-muted-foreground">Your agreement has been sent to the counter-party for their signature.</p>
             <div className="mt-6 flex justify-center gap-4">
                 <Button asChild>
-                    <a href="/">Back to Dashboard</a>
+                    <Link href="/dashboard">Back to Dashboard</Link>
                 </Button>
-                <Button variant="outline">Create Another</Button>
+                <Button variant="outline" onClick={() => window.location.reload()}>Create Another</Button>
             </div>
         </div>
     );
@@ -238,7 +247,7 @@ function Step4() {
 const steps = [
   { id: 'Step 1', name: 'Details', icon: FileText, fields: ['title', 'agreementType', 'description'] },
   { id: 'Step 2', name: 'Parties', icon: Users, fields: ['counterPartyName', 'counterPartyEmail'] },
-  { id: 'Step 3', name: 'Review', icon: FileCheck2 },
+  { id: 'Step 3', name: 'Review & Send', icon: FileCheck2 },
   { id: 'Step 4', name: 'Complete', icon: PartyPopper }
 ];
 
@@ -282,7 +291,7 @@ export default function NewAgreementPage() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
   
