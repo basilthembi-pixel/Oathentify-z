@@ -45,7 +45,6 @@ import { AgreementShare } from '@/components/agreement-share';
 import { useMode } from '@/context/mode-provider';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { RelationshipAgreementSelect } from '@/components/relationship-agreement-select';
 
 const step0Schema = z.object({
   // No validation needed for this step, it's just a selection
@@ -76,11 +75,13 @@ const casualAgreementTypes = [
 
 const HeartHandshakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-        <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.82 2.96 0l.9-1.04" />
-        <path d="m15 8.04 2.96.96" />
-        <path d="m9.04 16.04-2.96-.96" />
-        <path d="m14.96 13.04.9-1.04c.82-.82.82-2.27 0-3.08v0a2.17 2.17 0 0 0-3.08 0l-.9.9" />
+        <path d="m11 17 2 2a1 1 0 1 0 1.4-1.4l-2-2" />
+        <path d="m5.8 11.2 2.8 2.8" />
+        <path d="M14 10.5c.3-.3.3-.8 0-1.1l-2.5-2.5c-.3-.3-.8-.3-1.1 0l-2.5 2.5c-.3.3-.3.8 0 1.1l2.5 2.5c.3.3.8.3 1.1 0Z" />
+        <path d="M18 16.5c.3-.3.3-.8 0-1.1l-2.5-2.5c-.3-.3-.8-.3-1.1 0l-2.5 2.5c-.3.3-.3.8 0 1.1l2.5 2.5c.3.3.8.3 1.1 0Z" />
+        <path d="m21 13-2-2" />
+        <path d="m14 3-2.5 2.5" />
+        <path d="M3 21l2.5-2.5" />
     </svg>
 );
 
@@ -152,7 +153,6 @@ function Step0() {
                             <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Living together</li>
                             <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Financial planning</li>
                             <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Boundaries & goals</li>
-                            <li className="flex items-center gap-2"><FileCheck2 className="h-4 w-4 text-pink-500/70" /> Protective agreements</li>
                         </ul>
                     </CardContent>
                 </Card>
@@ -162,30 +162,20 @@ function Step0() {
 }
 
 const relationshipAgreementTypes = [
-    {
-        category: "Foundation",
-        types: [
-            { value: "Living Together", label: "🏠 Living Together", description: "Making home life smooth & happy" },
-            { value: "Money & Finances", label: "💰 Money & Finances", description: "Keep money talks healthy & clear" },
-            { value: "Future Goals & Dreams", label: "🎯 Future Goals & Dreams", description: "Align on marriage, kids, and life" },
-            { value: "Communication & Conflict", label: "🗣️ Communication & Conflict", description: "Fight fair, love better" },
-            { value: "Social Life & Boundaries", label: "👥 Social Life & Boundaries", description: "Friends, family, and personal space" },
-            { value: "Intimacy & Connection", label: "💑 Intimacy & Connection", description: "Physical and emotional closeness" },
-            { value: "Family & In-Laws", label: "👨‍👩‍👧 Family & In-Laws", description: "Navigate family life together" },
-            { value: "Personal Growth", label: "📈 Personal Growth", description: "Support each other's dreams" },
-        ],
-    },
-    {
-        category: "Protective",
-        types: [
-            { value: "Trust & Infidelity Boundaries", label: "💔 Trust & Infidelity Boundaries", description: "Serious - discuss openly first" },
-            { value: "If We Ever Part Ways", label: "📦 If We Ever Part Ways", description: "Hope for the best, plan for clarity" },
-            { value: "Debt & Financial Protection", label: "💳 Debt & Financial Protection", description: "Keep individual finances separate" },
-            { value: "Health & Crisis Support", label: "🏥 Health & Crisis Support", description: "Be there when it matters most" },
-            { value: "If Distance Happens", label: "✈️ If Distance Happens", description: "Making long-distance work" },
-            { value: "Safety & Emergency Exit", label: "🚪 Safety & Emergency Exit", description: "Protection if things go wrong" },
-        ],
-    },
+    "🏠 Living Together",
+    "💰 Money & Finances",
+    "🎯 Future Goals & Dreams",
+    "🗣️ Communication & Conflict",
+    "👥 Social Life & Boundaries",
+    "💑 Intimacy & Connection",
+    "👨‍👩‍👧 Family & In-Laws",
+    "📈 Personal Growth",
+    "💔 Trust & Infidelity Boundaries",
+    "📦 If We Ever Part Ways",
+    "💳 Debt & Financial Protection",
+    "🏥 Health & Crisis Support",
+    "✈️ If Distance Happens",
+    "🚪 Safety & Emergency Exit",
 ];
 
 function Step1() {
@@ -194,7 +184,11 @@ function Step1() {
   const [isPending, startTransition] = useTransition();
   const { mode } = useMode();
   
-  const agreementTypeList = mode === 'casual' ? casualAgreementTypes : AGREEMENT_TYPES;
+  const agreementTypeList = mode === 'casual' 
+    ? casualAgreementTypes 
+    : mode === 'relationship'
+    ? relationshipAgreementTypes
+    : AGREEMENT_TYPES;
 
 
   const handleSuggestTerms = () => {
@@ -286,27 +280,20 @@ function Step1() {
           <FormItem>
             <FormLabel>{getAgreementTypeLabel()}</FormLabel>
             <div className="flex gap-2">
-                {mode === 'relationship' ? (
-                   <RelationshipAgreementSelect
-                        selectedValue={field.value}
-                        onValueChange={field.onChange}
-                    />
-                ) : (
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a type" />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        {agreementTypeList.map((type) => (
-                            <SelectItem key={type} value={type}>
-                            {type}
-                            </SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                )}
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                    <SelectTrigger>
+                        <SelectValue placeholder={mode === 'relationship' ? "Choose what matters to you both..." : "Select a type"} />
+                    </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                    {agreementTypeList.map((type) => (
+                        <SelectItem key={type} value={type}>
+                        {type}
+                        </SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
 
                 <Button type="button" variant="outline" onClick={handleSuggestTerms} disabled={!form.watch('agreementType') || isPending}>
                     {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
