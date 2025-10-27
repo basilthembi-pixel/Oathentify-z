@@ -67,7 +67,7 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+      <PopoverContent side="bottom" align="start" className="w-[450px] p-0">
         <Command>
           <CommandInput placeholder="Search agreement type..." />
           <CommandList>
@@ -78,21 +78,22 @@ export function RelationshipAgreementSelect({ selectedValue, onValueChange }: { 
                   {group.types.map((type) => (
                     <CommandItem
                       key={type.value}
-                      value={type.value}
-                      onSelect={(currentValue) => {
-                        onValueChange(currentValue === selectedValue ? "" : currentValue)
+                      onSelect={() => {
+                        onValueChange(type.value === selectedValue ? "" : type.value)
                         setOpen(false)
                       }}
                     >
-                      <Check
-                          className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedValue === type.value ? "opacity-100" : "opacity-0"
-                          )}
-                      />
-                      <div className="flex-1 flex flex-col">
-                        <span className="flex-1">{type.label}</span>
-                        <span className="text-xs text-muted-foreground truncate">{type.description}</span>
+                       <div className="flex items-center gap-3">
+                          <Check
+                              className={cn(
+                              "h-4 w-4",
+                              selectedValue === type.value ? "opacity-100" : "opacity-0"
+                              )}
+                          />
+                          <div className="flex flex-col">
+                            <span className="">{type.label}</span>
+                            <span className="text-xs text-muted-foreground">{type.description}</span>
+                          </div>
                       </div>
                     </CommandItem>
                   ))}
