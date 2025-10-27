@@ -83,7 +83,21 @@ export default function SignupPage() {
       router.push('/');
     } catch (error: any) {
       console.error('Error during email sign-up:', error);
-      if (error.code === 'auth/configuration-not-found') {
+      if (error.code === 'auth/email-already-in-use') {
+        toast({
+          variant: 'destructive',
+          title: 'Email Already Registered',
+          description: (
+            <span>
+              This email address is already in use. Please{' '}
+              <Link href="/login" className="underline font-bold">
+                log in
+              </Link>{' '}
+              instead.
+            </span>
+          ),
+        });
+      } else if (error.code === 'auth/configuration-not-found') {
          toast({
           variant: 'destructive',
           title: 'Sign-up Failed',
