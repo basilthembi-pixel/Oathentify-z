@@ -19,7 +19,7 @@ export default function AuthenticatedAppLayout({
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -28,6 +28,11 @@ export default function AuthenticatedAppLayout({
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    // Render nothing or a redirect component while router pushes
+    return null;
   }
 
   return <AppLayout>{children}</AppLayout>;
