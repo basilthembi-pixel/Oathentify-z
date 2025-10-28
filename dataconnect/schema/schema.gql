@@ -1,0 +1,31 @@
+type User @table {
+  email: String!
+  displayName: String
+  createdAt: Timestamp!
+}
+
+type Agreement @table {
+  title: String!
+  agreementText: String!
+  status: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp
+  creator: User!
+}
+
+type Party @table {
+  agreement: Agreement!
+  name: String!
+  email: String!
+  role: String!
+  signedAt: Timestamp
+  signature: String
+}
+
+type SignatureEvent @table {
+  agreement: Agreement!
+  party: Party!
+  signedAt: Timestamp!
+  signatureData: String!
+  ipAddress: String
+}

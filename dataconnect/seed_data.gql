@@ -1,0 +1,64 @@
+mutation CreateDemoData @auth(level: PUBLIC, insecureReason: "This operation is used to seed the database with example data and is safe to expose to the public") @transaction {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      email: "demouser1@example.com",
+      createdAt: "2024-04-24T12:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      email: "demouser2@example.com",
+      createdAt: "2024-04-24T12:00:00Z"
+    }
+  ])
+  agreement_insertMany(data: [
+    {
+      id: "a5f7e9a0-e29b-41d4-a716-446655440000",
+      creatorId: "550e8400-e29b-41d4-a716-446655440000",
+      agreementText: "Example agreement text from demouser1",
+      createdAt: "2024-04-24T12:00:00Z",
+      status: "pending",
+      title: "Example Agreement 1"
+    },
+    {
+      id: "b6e8d2b1-e29b-41d4-a716-446655440001",
+      creatorId: "550e8400-e29b-41d4-a716-446655440001",
+      agreementText: "Example agreement text from demouser2",
+      createdAt: "2024-04-24T12:00:00Z",
+      status: "pending",
+      title: "Example Agreement 2"
+    }
+  ])
+  party_insertMany(data: [
+    {
+      id: "c7d9c3c2-e29b-41d4-a716-446655440000",
+      agreementId: "a5f7e9a0-e29b-41d4-a716-446655440000",
+      email: "party1@example.com",
+      name: "Party One",
+      role: "Signer"
+    },
+    {
+      id: "d8cae4d3-e29b-41d4-a716-446655440001",
+      agreementId: "b6e8d2b1-e29b-41d4-a716-446655440001",
+      email: "party2@example.com",
+      name: "Party Two",
+      role: "Signer"
+    }
+  ])
+  signatureEvent_insertMany(data: [
+    {
+      id: "e9fbe5e4-e29b-41d4-a716-446655440000",
+      agreementId: "a5f7e9a0-e29b-41d4-a716-446655440000",
+      partyId: "c7d9c3c2-e29b-41d4-a716-446655440000",
+      signatureData: "Example signature data 1",
+      signedAt: "2024-04-24T13:00:00Z"
+    },
+    {
+      id: "f0acb6f5-e29b-41d4-a716-446655440001",
+      agreementId: "b6e8d2b1-e29b-41d4-a716-446655440001",
+      partyId: "d8cae4d3-e29b-41d4-a716-446655440001",
+      signatureData: "Example signature data 2",
+      signedAt: "2024-04-24T13:00:00Z"
+    }
+  ])
+}

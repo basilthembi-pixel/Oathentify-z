@@ -37,7 +37,7 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (user) {
-      router.push('/');
+      router.push('/dashboard');
     }
   }, [user, router]);
 
@@ -47,7 +47,7 @@ export default function SignupPage() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user') {
         // User closed the popup, do nothing.
@@ -80,7 +80,7 @@ export default function SignupPage() {
           displayName: fullName,
         });
       }
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error('Error during email sign-up:', error);
       if (error.code === 'auth/email-already-in-use') {

@@ -1,0 +1,51 @@
+mutation CreateUser($email: String!, $displayName: String) @auth(level: USER) {
+  user_insert(data: {email: $email, displayName: $displayName})
+}
+
+query GetAgreement($id: UUID!) @auth(level: USER) {
+  agreement(id: $id) {
+    id
+    title
+    agreementText
+    status
+    createdAt
+    updatedAt
+    creator {
+      id
+      email
+    }
+    parties_on_agreement {
+      id
+      name
+      email
+      role
+      signature
+      signedAt
+    }
+    signatureEvents_on_agreement {
+      id
+      ipAddress
+      signatureData
+      signedAt
+    }
+  }
+}
+
+mutation SignAgreement($partyId: UUID!, $signatureData: String!, $ipAddress: String!) @auth(level: USER) {
+  signatureEvent_insert(data: {
+    partyId: $partyId,
+    signatureData: $signatureData,
+    ipAddress: $ipAddress,
+    signedAt_expr: "request.time"
+  })
+}
+
+query ListAgreements @auth(level: USER) {
+  agreements {
+    id
+    title
+    status
+    createdAt
+    updatedAt
+  }
+}
